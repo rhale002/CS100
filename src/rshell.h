@@ -6,10 +6,7 @@ class rshell
     private:
         
     public:
-        void beginShell()
-        {
-            
-        }
+        
 };
 
 #endif
