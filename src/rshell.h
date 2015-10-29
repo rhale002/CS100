@@ -95,9 +95,6 @@ queue<char> findConnectors(char cmdCharString[])
                 conDoubCatcher = true;
             else if(*connectorPointer == '#')
                 hashCatcher = true;
-                
-            // //Print what is put into command queue for TESTING
-            // cout << connectorQueue.back() << endl;
         }
         else
         {
@@ -126,30 +123,12 @@ queue<char*> findCommands(char cmdCharString[])
         
         commandQueue.push(cmdCharPointer);
         
-        // // Print command for TESTING
-        // cout << commandQueue.back() << endl;
-        
         //Go to next command
         cmdCharPointer = strtok (NULL, "|;&#");
     }
     
     return commandQueue;
 }
-
-//Function which seperates the command from other stuff and returns the command
-char* createCommand(char* cmdCharPointer)
-{
-    //Seperate command from other stuff
-    cmdCharPointer = strtok(cmdCharPointer, " ");
-    
-    // //Used for TESTING if command was separated properly
-    // cout << cmdCharPointer << endl;
-    
-    //return command
-    return cmdCharPointer;
-}
-
-
 
 //Function to run the shell
 void rshell()
@@ -172,41 +151,64 @@ void rshell()
     //Create a queue filled with commands in order using findCommands()
     queue<char*> commandQueue = findCommands(cmdCharString);
     
-    // //Create bool to store whether command execution was a success
+    //Create bool to store whether command execution was a success
     // bool ynSuccess = true;
     
-    // //Run commands until we run out of commands to call
-    // while(!commandQueue.empty())
-    // {
-    //     pid_t pid;
-    //     int status;
+    //Run commands until we run out of commands to call
+    while(!commandQueue.empty())
+    {
+        pid_t pid;
+        int status;
         
-    //     //Prepare command by seperating arguments from command
+        //Following code goes about creating rest of arguments to go with command
+        char* cmdCharPointer = strtok(commandQueue.front(), " ");
         
-        
-    //     //Run fork and get pid
-    //     //If an error while forking occurs then say so and exit
-    //     if ((pid = fork()) < 0) 
-    //     {
-    //         cout << "ERROR: forking child process failed" << endl;
-    //         exit(1);
-    //     }
-    //     else if (pid == 0) 
-    //     {
-    //         //Run the command and record whether it was successful
-    //         if(execvp(*argv, argv) < 0)
-    //             ynSuccess = false;
-    //         else
-    //             ynSuccess = true;
-    //     }
-    //     else 
-    //     {
-    //         //Wait for completion
-    //         while (wait(&status) != pid);
+        queue<char*> tempStorage;
+        while(cmdCharPointer != NULL)
+        {
+            tempStorage.push(cmdCharPointer);
             
-    //     }
-    // }
-    
+            cmdCharPointer = strtok(NULL, " ");
+        }
+        unsigned argsSize = tempStorage.size() + 1;
+        
+        // char** args = new char*[argsSize];
+        char** args = new char*[argsSize];
+        
+        unsigned argsMover = 0;
+        while(!tempStorage.empty())
+        {
+            args[argsMover] = tempStorage.front();
+            argsMover++;
+            tempStorage.pop();
+        }
+        args[argsMover] = NULL;
+        
+        //Run fork and get pid
+        //If an error while forking occurs then say so and exit
+        if ((pid = fork()) < 0) 
+        {
+            cout << "ERROR: forking child process failed" << endl;
+            exit(1);
+        }
+        else if (pid == 0) 
+        {
+            execvp(*args, args);
+            // //Run the command and record whether it was successful
+            // if(execvp(command, args) < 0)
+            //     ynSuccess = false;
+            // else
+            //     ynSuccess = true;
+        }
+        else 
+        {
+            //Wait for completion
+            while (wait(&status) != pid);
+        }
+        commandQueue.pop();
+        
+        delete[] args;
+    }
     delete[] cmdCharString;
 }
 
