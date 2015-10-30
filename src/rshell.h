@@ -236,8 +236,7 @@ void rshell()
         ynSuccess = runCommand(args);
         
         //FOR TESTING
-        if(ynSuccess)
-            cout << ' ';
+        if(ynSuccess){}
         
         delete[] args;
     }
