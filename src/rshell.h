@@ -130,6 +130,67 @@ queue<char*> findCommands(char cmdCharString[])
     return commandQueue;
 }
 
+//Creates a queue with the seperate arguments for a command
+queue<char*> seperatedCommand(char command[])
+{
+    queue<char*> sepComQueue;
+    
+    char* cmdCharPointer = strtok(command, " ");
+    while(cmdCharPointer != NULL)
+    {
+        sepComQueue.push(cmdCharPointer);
+        
+        cmdCharPointer = strtok(NULL, " ");
+    }
+    
+    return sepComQueue;
+}
+
+//Fills the 2D array with all arguments for running the command
+void fillArgsArray(char** args, queue<char*> sepComQueue)
+{
+    unsigned i;
+    for(i = 0; !sepComQueue.empty(); i++)
+    {
+        args[i] = sepComQueue.front();
+        sepComQueue.pop();
+    }
+    args[i] = NULL;
+}
+
+//Runs the command and returns true if success else false
+bool runCommand(char** args)
+{
+    //Create bool to store whether command execution was a success
+    bool ynSuccess = true;
+    
+    pid_t pid;
+    int status;
+    
+    //Run fork and get parent id
+    //If an error while forking occurs then say so and exit
+    if ((pid = fork()) < 0) 
+    {
+        cout << "ERROR: forking child process failed" << endl;
+        exit(1);
+    }
+    else if (pid == 0) 
+    {
+        //Run the command and record whether it was successful
+        if(execvp(*args, args) < 0)
+            ynSuccess = false;
+        else
+            ynSuccess = true;
+    }
+    else 
+    {
+        //Wait for completion
+        while(wait(&status) != pid);
+    }
+    
+    return ynSuccess;
+}
+
 //Function to run the shell
 void rshell()
 {
@@ -152,60 +213,31 @@ void rshell()
     queue<char*> commandQueue = findCommands(cmdCharString);
     
     //Create bool to store whether command execution was a success
-    // bool ynSuccess = true;
+    bool ynSuccess = true;
     
     //Run commands until we run out of commands to call
     while(!commandQueue.empty())
     {
-        pid_t pid;
-        int status;
+        // pid_t pid;
+        // int status;
         
-        //Following code goes about creating rest of arguments to go with command
-        char* cmdCharPointer = strtok(commandQueue.front(), " ");
+        //Creates a queue with the seperate arguments for a command
+        queue<char*> sepComQueue = seperatedCommand(commandQueue.front());
         
-        queue<char*> tempStorage;
-        while(cmdCharPointer != NULL)
-        {
-            tempStorage.push(cmdCharPointer);
-            
-            cmdCharPointer = strtok(NULL, " ");
-        }
-        unsigned argsSize = tempStorage.size() + 1;
-        
-        // char** args = new char*[argsSize];
-        char** args = new char*[argsSize];
-        
-        unsigned argsMover = 0;
-        while(!tempStorage.empty())
-        {
-            args[argsMover] = tempStorage.front();
-            argsMover++;
-            tempStorage.pop();
-        }
-        args[argsMover] = NULL;
-        
-        //Run fork and get pid
-        //If an error while forking occurs then say so and exit
-        if ((pid = fork()) < 0) 
-        {
-            cout << "ERROR: forking child process failed" << endl;
-            exit(1);
-        }
-        else if (pid == 0) 
-        {
-            execvp(*args, args);
-            // //Run the command and record whether it was successful
-            // if(execvp(command, args) < 0)
-            //     ynSuccess = false;
-            // else
-            //     ynSuccess = true;
-        }
-        else 
-        {
-            //Wait for completion
-            while (wait(&status) != pid);
-        }
+        //Take one out of the queue of commands which need to be run
         commandQueue.pop();
+        
+        //Create a 2D array and store all arguments for command
+        unsigned argsSize = sepComQueue.size() + 1;
+        char** args = new char*[argsSize];
+        fillArgsArray(args, sepComQueue);
+        
+        //Run the command and store whether it was a success
+        ynSuccess = runCommand(args);
+        
+        //FOR TESTING
+        if(ynSuccess)
+            cout << ' ';
         
         delete[] args;
     }
