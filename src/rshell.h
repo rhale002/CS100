@@ -218,9 +218,6 @@ void rshell()
     //Run commands until we run out of commands to call
     while(!commandQueue.empty())
     {
-        // pid_t pid;
-        // int status;
-        
         //Creates a queue with the seperate arguments for a command
         queue<char*> sepComQueue = seperateCommand(commandQueue.front());
         
