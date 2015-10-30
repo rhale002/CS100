@@ -131,7 +131,7 @@ queue<char*> findCommands(char cmdCharString[])
 }
 
 //Creates a queue with the seperate arguments for a command
-queue<char*> seperatedCommand(char command[])
+queue<char*> seperateCommand(char command[])
 {
     queue<char*> sepComQueue;
     
@@ -222,7 +222,7 @@ void rshell()
         // int status;
         
         //Creates a queue with the seperate arguments for a command
-        queue<char*> sepComQueue = seperatedCommand(commandQueue.front());
+        queue<char*> sepComQueue = seperateCommand(commandQueue.front());
         
         //Take one out of the queue of commands which need to be run
         commandQueue.pop();
