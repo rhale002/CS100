@@ -229,6 +229,10 @@ void rshell()
         char** args = new char*[argsSize];
         fillArgsArray(args, sepComQueue);
         
+        //If command is exit then exit
+        if(strcmp(*args, "exit") == 0)
+            exit(0);
+        
         //Run the command and store whether it was a success
         ynSuccess = runCommand(args);
         
