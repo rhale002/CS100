@@ -24,22 +24,33 @@ class connector
         connector(bool ynSuccess)
         :ynSuccess(ynSuccess)
         {}
+        
+        virtual ~connector()
+        {}
     
-        virtual bool isGoodOrNot() = 0;
+        virtual bool isGoodOrNot(bool ynSuccess) = 0;
 };
 
 //Class which inherits from connector made for &&
 class andConnector : public connector
 {
     public:
+        andConnector()
+        : connector(true)
+        {}
+    
         andConnector(bool ynSuccess)
         : connector(ynSuccess)
         {}
         
+        virtual ~andConnector()
+        {}
+        
         //If last command was successful then return true else return false
-        bool isGoodOrNot()
+        virtual bool isGoodOrNot(bool ynSuccess)
         {
-            return ynSuccess;
+            this->ynSuccess = ynSuccess;
+            return this->ynSuccess;
         }
 };
 
@@ -47,14 +58,22 @@ class andConnector : public connector
 class orConnector : public connector
 {
     public:
+        orConnector()
+        : connector(true)
+        {}
+        
         orConnector(bool ynSuccess)
         : connector(ynSuccess)
         {}
         
+        virtual ~orConnector()
+        {}
+        
         //If last command was successful then return false else return true
-        bool isGoodOrNot()
+        virtual bool isGoodOrNot(bool ynSuccess)
         {
-            return !ynSuccess;
+            this->ynSuccess = !ynSuccess;
+            return this->ynSuccess;
         }
 };
 
@@ -62,14 +81,22 @@ class orConnector : public connector
 class semiColonConnector : public connector
 {
     public:
+        semiColonConnector()
+        : connector(true)
+        {}
+        
         semiColonConnector(bool ynSuccess)
         : connector(ynSuccess)
         {}
         
+        virtual ~semiColonConnector()
+        {}
+        
         //Always return true;
-        bool isGoodOrNot()
+        virtual bool isGoodOrNot(bool ynSuccess)
         {
-            return true;
+            this->ynSuccess = true;
+            return this->ynSuccess;
         }
 };
 
@@ -176,16 +203,24 @@ bool runCommand(char** args)
     }
     else if (pid == 0) 
     {
-        //Run the command and record whether it was successful
-        if(execvp(*args, args) < 0)
-            ynSuccess = false;
-        else
-            ynSuccess = true;
+        //Run the command
+        execvp(*args, args);
     }
     else 
     {
         //Wait for completion
         while(wait(&status) != pid);
+        
+        //Tests if command executed properly and if not sets success to false
+        if(WIFEXITED(status))
+        {
+            if(WEXITSTATUS(status) != 0)
+                ynSuccess = false;
+        }
+        else
+        {
+            ynSuccess = false;
+        }
     }
     
     return ynSuccess;
@@ -208,6 +243,26 @@ void rshell()
     
     //Create a queue filled with connectors in order using findConnectors()
     queue<char> connectorCharQueue = findConnectors(cmdCharString);
+    queue<connector*> connectorQueue;
+    while(!connectorCharQueue.empty())
+    {
+        if(connectorCharQueue.front() == '&')
+        {
+            andConnector* p = new andConnector();
+            connectorQueue.push(p);
+        }
+        else if(connectorCharQueue.front() == '|')
+        {
+            orConnector* p = new orConnector();
+            connectorQueue.push(p);
+        }
+        else
+        {
+            semiColonConnector* p = new semiColonConnector();
+            connectorQueue.push(p);
+        }
+        connectorCharQueue.pop();
+    }
     
     //Create a queue filled with commands in order using findCommands()
     queue<char*> commandQueue = findCommands(cmdCharString);
@@ -236,8 +291,15 @@ void rshell()
         //Run the command and store whether it was a success
         ynSuccess = runCommand(args);
         
-        //FOR TESTING
-        if(ynSuccess){}
+        //Handles connectors
+        if(!connectorQueue.empty())
+        {
+            if(!(connectorQueue.front()->isGoodOrNot(ynSuccess)))
+                commandQueue.pop();
+            connector* p = connectorQueue.front();
+            delete p;
+            connectorQueue.pop();
+        }
         
         delete[] args;
     }
