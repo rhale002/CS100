@@ -136,6 +136,16 @@ queue<char> findConnectors(char cmdCharString[])
     return connectorQueue;
 }
 
+//Read through input until first non whitespace char and if hash then return
+//true else return false
+bool firstCharHash(string cmdString)
+{
+    if(cmdString.find_first_not_of(" \t\r\n") != string::npos &&
+        cmdString.at(cmdString.find_first_not_of(" \t\r\n")) == '#')
+        return true;
+    return false;
+}
+
 queue<char*> findCommands(char cmdCharString[])
 {
     queue<char*> commandQueue;
@@ -244,7 +254,7 @@ void rshell()
     //Create a queue filled with connectors in order using findConnectors()
     queue<char> connectorCharQueue = findConnectors(cmdCharString);
     queue<connector*> connectorQueue;
-    while(!connectorCharQueue.empty())
+    while(!connectorCharQueue.empty() && connectorCharQueue.front() != '#')
     {
         if(connectorCharQueue.front() == '&')
         {
@@ -270,8 +280,12 @@ void rshell()
     //Create bool to store whether command execution was a success
     bool ynSuccess = true;
     
+    //Create a bool for checking if the first non space character is a hash
+    bool firstHash = firstCharHash(cmdString);
+    
     //Run commands until we run out of commands to call
-    while(!commandQueue.empty())
+    //Don't run if first char is a hash
+    while(!commandQueue.empty() && !firstHash)
     {
         //Creates a queue with the seperate arguments for a command
         queue<char*> sepComQueue = seperateCommand(commandQueue.front());
@@ -299,6 +313,11 @@ void rshell()
             connector* p = connectorQueue.front();
             delete p;
             connectorQueue.pop();
+        }
+        else if(!connectorCharQueue.empty())
+        {
+            if(connectorCharQueue.front() == '#')
+                exit(0);
         }
         
         delete[] args;

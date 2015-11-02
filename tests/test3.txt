@@ -1,2 +1,2 @@
-ls -a    ;   echo hello    &&    mkdir test   ||   echo world   ;   git status
+ls -a    ;   echo hello    &&    mkdir DELETE   ||   echo world   ;   git status
 #Test different spacing

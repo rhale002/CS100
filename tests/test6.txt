@@ -1,0 +1,2 @@
+#ls -a; echo hello&& mkdir DELETE|| echo world; git status
+#Test begining hash
