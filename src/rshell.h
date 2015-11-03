@@ -322,7 +322,6 @@ void rshell()
                 connector* p = connectorQueue.front();
                 delete p;
                 connectorQueue.pop();
-                ynSuccess = false;
             }
             
             connector* p = connectorQueue.front();
