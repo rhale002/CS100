@@ -1,2 +1,0 @@
-ls -a; echo hello&& exit || echo world; git status
-#Test exit function
