@@ -110,6 +110,7 @@ queue<char> findConnectors(char cmdCharString[])
     //Create a bool for keeping track of doubles
     bool conDoubCatcher = false;
     bool hashCatcher = false;
+    
     //Loop to find all connectors and put them in the queue
     while (connectorPointer != NULL && hashCatcher == false)
     {
@@ -117,21 +118,27 @@ queue<char> findConnectors(char cmdCharString[])
         if(!conDoubCatcher)
         {
             //Push connector character into command queue
-            connectorQueue.push(*connectorPointer);
-            if(*connectorPointer == '&' || *connectorPointer == '|')
+            if((*connectorPointer == '&' || *connectorPointer == '|') &&
+                (*connectorPointer == *(connectorPointer + 1)))
+            {
+                connectorQueue.push(*connectorPointer);
                 conDoubCatcher = true;
+            }
             else if(*connectorPointer == '#')
+            {
+                connectorQueue.push(*connectorPointer);
                 hashCatcher = true;
+            }
+            else if(*connectorPointer == ';')
+            {
+                connectorQueue.push(*connectorPointer);
+            }
         }
         else
-        {
             conDoubCatcher = false;
-        }
-        
         //Go to the next occurance of a connector character
         connectorPointer = strpbrk(connectorPointer + 1, "|;&#");
     }
-    
     //return queue with all found connectors
     return connectorQueue;
 }
@@ -308,12 +315,6 @@ void rshell()
         //Handles connectors
         if(!connectorQueue.empty())
         {
-            if(!(connectorQueue.front()->isGoodOrNot(ynSuccess)))
-                commandQueue.pop();
-            connector* p = connectorQueue.front();
-            delete p;
-            connectorQueue.pop();
-            
             while(!connectorQueue.empty() && !commandQueue.empty() &&
                 !(connectorQueue.front()->isGoodOrNot(ynSuccess)))
             {
@@ -321,7 +322,12 @@ void rshell()
                 connector* p = connectorQueue.front();
                 delete p;
                 connectorQueue.pop();
+                ynSuccess = false;
             }
+            
+            connector* p = connectorQueue.front();
+            delete p;
+            connectorQueue.pop();
         }
         else if(!connectorCharQueue.empty())
         {
