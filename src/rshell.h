@@ -313,11 +313,20 @@ void rshell()
             connector* p = connectorQueue.front();
             delete p;
             connectorQueue.pop();
+            
+            while(!connectorQueue.empty() && !commandQueue.empty() &&
+                !(connectorQueue.front()->isGoodOrNot(ynSuccess)))
+            {
+                commandQueue.pop();
+                connector* p = connectorQueue.front();
+                delete p;
+                connectorQueue.pop();
+            }
         }
         else if(!connectorCharQueue.empty())
         {
             if(connectorCharQueue.front() == '#')
-                exit(0);
+                exit(0); 
         }
         
         delete[] args;
