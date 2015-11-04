@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
 #include "rshell.h"
 
 using namespace std;
@@ -105,6 +106,7 @@ class semiColonConnector : public connector
 queue<char> findConnectors(char cmdCharString[])
 {
     queue<char> connectorQueue;
+    
     //Create a pointer pointing to the first occurance of a connector
     char* connectorPointer = strpbrk(cmdCharString, "|;&#");
     //Create a bool for keeping track of doubles
@@ -114,7 +116,7 @@ queue<char> findConnectors(char cmdCharString[])
     //Loop to find all connectors and put them in the queue
     while (connectorPointer != NULL && hashCatcher == false)
     {
-        //Make sure only one character is stored per connector
+        //Store the characters for each connector
         if(!conDoubCatcher)
         {
             //Push connector character into command queue
@@ -124,15 +126,22 @@ queue<char> findConnectors(char cmdCharString[])
                 connectorQueue.push(*connectorPointer);
                 conDoubCatcher = true;
             }
-            else if(*connectorPointer == '#')
+            //Do not store single & or | and throw error
+            else if((*connectorPointer == '&' || *connectorPointer == '|') &&
+                (*connectorPointer != *(connectorPointer + 1)))
+            {
+                cout << "ERROR: Invalid connector: " << *connectorPointer 
+                    << endl;
+                exit(1);
+            }
+            else if(*connectorPointer == '#' && *(connectorPointer - 1) == ' ')
             {
                 connectorQueue.push(*connectorPointer);
                 hashCatcher = true;
             }
             else if(*connectorPointer == ';')
-            {
                 connectorQueue.push(*connectorPointer);
-            }
+            
         }
         else
             conDoubCatcher = false;
@@ -156,8 +165,21 @@ bool firstCharHash(string cmdString)
 queue<char*> findCommands(char cmdCharString[])
 {
     queue<char*> commandQueue;
-    //Create pointer to begining of first command
-    char* cmdCharPointer = strtok(cmdCharString, "|;&#");
+    
+    //Create pointers for finding commands and connectors
+    char* conPointer = strpbrk(cmdCharString, "|;&#");
+    char* cmdCharPointer = NULL;
+    
+    //point at commands based on # placement
+    if(conPointer != NULL && *conPointer == '#' && *(conPointer - 1) != ' ')
+    {
+        cmdCharPointer = strtok(cmdCharString, "|;&");
+    }
+    else
+    {
+        cmdCharPointer = strtok(cmdCharString, "|;&#");
+    }
+
     //Go through command cString and find commands
     while(cmdCharPointer != NULL)
     {
@@ -165,10 +187,33 @@ queue<char*> findCommands(char cmdCharString[])
         while(*cmdCharPointer == ' ')
             cmdCharPointer++;
         
+        //Add the command to the queue
         commandQueue.push(cmdCharPointer);
         
-        //Go to next command
-        cmdCharPointer = strtok (NULL, "|;&#");
+        //Add commands based on # placement 
+        if(conPointer != NULL)
+        {
+            conPointer = strpbrk(conPointer + 1, "|;&#");
+            if(conPointer != NULL)
+            {
+                if(*conPointer == '#' && *(conPointer - 1) != ' ')
+                {
+                    cmdCharPointer = strtok(NULL, "|;&");
+                }
+                else
+                {
+                    cmdCharPointer = strtok(NULL, "|;&#");
+                }
+            }
+            else
+            {
+                cmdCharPointer = strtok(NULL, "|;&#");
+            }
+        }
+        else
+        {
+            cmdCharPointer = strtok(NULL, "|;&#");
+        }
     }
     
     return commandQueue;
@@ -221,7 +266,8 @@ bool runCommand(char** args)
     else if (pid == 0) 
     {
         //Run the command
-        execvp(*args, args);
+        if(execvp(*args, args) < 0)
+            perror(NULL);
     }
     else 
     {
@@ -232,7 +278,9 @@ bool runCommand(char** args)
         if(WIFEXITED(status))
         {
             if(WEXITSTATUS(status) != 0)
+            {
                 ynSuccess = false;
+            }
         }
         else
         {
@@ -252,14 +300,30 @@ void rshell()
     //Take in command and store it in a c-string
     string cmdString;
     getline(cin, cmdString);
-    char* cmdCharString = new char[cmdString.size()];
+    char* cmdCharString = new char[cmdString.size() + 1];
     strcpy(cmdCharString, cmdString.c_str());
     
-    //Print endl for when TESTING with file
+    //For making testing with files better looking
     cout << endl;
     
     //Create a queue filled with connectors in order using findConnectors()
     queue<char> connectorCharQueue = findConnectors(cmdCharString);
+    
+    //Create a queue filled with commands in order using findCommands()
+    queue<char*> commandQueue = findCommands(cmdCharString);
+    
+    //Makes sure the string doesn't end in a '&&' or '||' connector
+    if(commandQueue.size() <= connectorCharQueue.size() 
+        && (connectorCharQueue.back() == '|' 
+        || connectorCharQueue.back() == '&'))
+    {
+        cout << "ERROR: Command string ends in " << connectorCharQueue.back() 
+            << connectorCharQueue.back() << " and has no following command" 
+            << endl;
+        exit(1);
+    }
+    
+    //Create a queue of connector* based on the connectorCharQueue
     queue<connector*> connectorQueue;
     while(!connectorCharQueue.empty() && connectorCharQueue.front() != '#')
     {
@@ -280,9 +344,6 @@ void rshell()
         }
         connectorCharQueue.pop();
     }
-    
-    //Create a queue filled with commands in order using findCommands()
-    queue<char*> commandQueue = findCommands(cmdCharString);
     
     //Create bool to store whether command execution was a success
     bool ynSuccess = true;
