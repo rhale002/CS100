@@ -341,6 +341,36 @@ void rshell()
         }
     }
     
+    //Check for two connectors with no command inbetween
+    char* findDoubleConnectors = strpbrk(cmdCharString, ";&|");
+    while (findDoubleConnectors != NULL && findDoubleConnectors != cmdCharString)
+    {
+        bool skipChecking = false;
+        char* temp = findDoubleConnectors;
+        if(*temp == ';')
+            temp--;
+        else if((*temp == '|' || *temp == '&') && (*(temp - 1) == *temp))
+            temp = temp - 2;
+        else if((*temp == '|' || *temp == '&') && (*(temp - 1) != *temp))
+            skipChecking = true;
+            
+        while (*temp == ' ' && temp != cmdCharString && !skipChecking)
+            temp--;
+        if ((*temp == '&' || *temp == '|') && !skipChecking)
+        {
+            cout << "Syntax error near unexpected token \'" << *temp << *temp 
+                << "\'" << endl;
+            exit(1);
+        }
+        else if(*temp == ';' && !skipChecking)
+        {
+            cout << "Syntax error near unexpected token \'" << *temp << "\'" 
+                << endl;
+            exit(1);
+        }
+        findDoubleConnectors = strpbrk(findDoubleConnectors + 1, ";&|");
+    }
+    
     //Create a queue filled with connectors in order using findConnectors()
     queue<char> connectorCharQueue = findConnectors(cmdCharString);
         

@@ -44,4 +44,8 @@ echo ' &&ls -a; echo hello&& mkdir DELETE|| echo world; git status' | bin/rshell
 echo ' ||ls -a; echo hello&& mkdir DELETE|| echo world; git status' | bin/rshell
 echo ' ;ls -a; echo hello&& mkdir DELETE|| echo world; git status' | bin/rshell
 
+#Test with two connectors but no commands inbetween
+echo 'ls -a&&&& echo hello&& mkdir DELETE|| echo world; git status' | bin/rshell
+echo 'ls -a; echo hello |||| mkdir DELETE|| echo world; git status' | bin/rshell
+echo 'ls -a; echo hello&& mkdir DELETE|| echo world ;; git status' | bin/rshell
 
