@@ -162,6 +162,7 @@ bool firstCharHash(string cmdString)
     return false;
 }
 
+//Finds the commands and stores them in a queue for later use
 queue<char*> findCommands(char cmdCharString[])
 {
     queue<char*> commandQueue;
@@ -217,6 +218,22 @@ queue<char*> findCommands(char cmdCharString[])
     }
     
     return commandQueue;
+}
+
+//Checks for starting connector with no previous command
+void checkForStartingConnectors(char cmdCharString[])
+{
+    char* cmdCharPointer = cmdCharString;
+    while(*cmdCharPointer == ' ')
+            cmdCharPointer++;
+    if(cmdCharPointer != NULL && (cmdCharPointer + 1) != NULL && 
+        ((*cmdCharPointer == '&' && *(cmdCharPointer + 1) == '&') || 
+        (*cmdCharPointer == '|' && *(cmdCharPointer + 1) == '|')))
+    {
+        cout << "ERROR: " << *cmdCharPointer << *cmdCharPointer 
+            << " connector with no previous command" << endl;
+        exit(1);
+    }
 }
 
 //Creates a queue with the seperate arguments for a command
@@ -305,6 +322,9 @@ void rshell()
     
     //For making testing with files better looking
     cout << endl;
+    
+    //Check for bad starting connectors
+    checkForStartingConnectors(cmdCharString);
     
     //Create a queue filled with connectors in order using findConnectors()
     queue<char> connectorCharQueue = findConnectors(cmdCharString);
