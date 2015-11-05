@@ -117,29 +117,29 @@ queue<char> findConnectors(char cmdCharString[])
     while (connectorPointer != NULL && hashCatcher == false)
     {
         //Store the characters for each connector
-        if(!conDoubCatcher)
+        if (!conDoubCatcher)
         {
             //Push connector character into command queue
-            if((*connectorPointer == '&' || *connectorPointer == '|') &&
+            if ((*connectorPointer == '&' || *connectorPointer == '|') &&
                 (*connectorPointer == *(connectorPointer + 1)))
             {
                 connectorQueue.push(*connectorPointer);
                 conDoubCatcher = true;
             }
             //Do not store single & or | and throw error
-            else if((*connectorPointer == '&' || *connectorPointer == '|') &&
+            else if ((*connectorPointer == '&' || *connectorPointer == '|') &&
                 (*connectorPointer != *(connectorPointer + 1)))
             {
                 cout << "ERROR: Invalid connector: " << *connectorPointer 
                     << endl;
                 exit(1);
             }
-            else if(*connectorPointer == '#' && *(connectorPointer - 1) == ' ')
+            else if (*connectorPointer == '#' && *(connectorPointer - 1) == ' ')
             {
                 connectorQueue.push(*connectorPointer);
                 hashCatcher = true;
             }
-            else if(*connectorPointer == ';')
+            else if (*connectorPointer == ';')
                 connectorQueue.push(*connectorPointer);
             
         }
@@ -156,7 +156,7 @@ queue<char> findConnectors(char cmdCharString[])
 //true else return false
 bool firstCharHash(string cmdString)
 {
-    if(cmdString.find_first_not_of(" \t\r\n") != string::npos &&
+    if (cmdString.find_first_not_of(" \t\r\n") != string::npos &&
         cmdString.at(cmdString.find_first_not_of(" \t\r\n")) == '#')
         return true;
     return false;
@@ -172,7 +172,7 @@ queue<char*> findCommands(char cmdCharString[])
     char* cmdCharPointer = NULL;
     
     //point at commands based on # placement
-    if(conPointer != NULL && *conPointer == '#' && *(conPointer - 1) != ' ')
+    if (conPointer != NULL && *conPointer == '#' && *(conPointer - 1) != ' ')
     {
         cmdCharPointer = strtok(cmdCharString, "|;&");
     }
@@ -182,39 +182,32 @@ queue<char*> findCommands(char cmdCharString[])
     }
 
     //Go through command cString and find commands
-    while(cmdCharPointer != NULL)
+    while (cmdCharPointer != NULL)
     {
         //Get rid of space in begining of command
-        while(*cmdCharPointer == ' ')
+        while (*cmdCharPointer == ' ')
             cmdCharPointer++;
         
         //Add the command to the queue
         commandQueue.push(cmdCharPointer);
         
         //Add commands based on # placement 
-        if(conPointer != NULL)
+        if (conPointer != NULL)
         {
             conPointer = strpbrk(conPointer + 1, "|;&#");
-            if(conPointer != NULL)
+            
+            if (conPointer != NULL)
             {
                 if(*conPointer == '#' && *(conPointer - 1) != ' ')
-                {
                     cmdCharPointer = strtok(NULL, "|;&");
-                }
                 else
-                {
                     cmdCharPointer = strtok(NULL, "|;&#");
-                }
             }
             else
-            {
                 cmdCharPointer = strtok(NULL, "|;&#");
-            }
         }
         else
-        {
             cmdCharPointer = strtok(NULL, "|;&#");
-        }
     }
     
     return commandQueue;
@@ -224,9 +217,10 @@ queue<char*> findCommands(char cmdCharString[])
 void checkForStartingConnectors(char cmdCharString[])
 {
     char* cmdCharPointer = cmdCharString;
-    while(*cmdCharPointer == ' ')
+    while (*cmdCharPointer == ' ')
             cmdCharPointer++;
-    if(cmdCharPointer != NULL && (cmdCharPointer + 1) != NULL && 
+            
+    if (cmdCharPointer != NULL && (cmdCharPointer + 1) != NULL && 
         ((*cmdCharPointer == '&' && *(cmdCharPointer + 1) == '&') || 
         (*cmdCharPointer == '|' && *(cmdCharPointer + 1) == '|')))
     {
@@ -234,7 +228,7 @@ void checkForStartingConnectors(char cmdCharString[])
             << *cmdCharPointer << *cmdCharPointer << "\'" << endl;
         exit(1);
     }
-    if(cmdCharPointer != NULL && *cmdCharPointer == ';')
+    if (cmdCharPointer != NULL && *cmdCharPointer == ';')
     {
         cout << "ERROR: syntax error near unexpected token \'" 
             << *cmdCharPointer << "\'" << endl;
@@ -248,10 +242,9 @@ queue<char*> seperateCommand(char command[])
     queue<char*> sepComQueue;
     
     char* cmdCharPointer = strtok(command, " ");
-    while(cmdCharPointer != NULL)
+    while (cmdCharPointer != NULL)
     {
         sepComQueue.push(cmdCharPointer);
-        
         cmdCharPointer = strtok(NULL, " ");
     }
     
@@ -262,7 +255,7 @@ queue<char*> seperateCommand(char command[])
 void fillArgsArray(char** args, queue<char*> sepComQueue)
 {
     unsigned i;
-    for(i = 0; !sepComQueue.empty(); i++)
+    for (i = 0; !sepComQueue.empty(); i++)
     {
         args[i] = sepComQueue.front();
         sepComQueue.pop();
@@ -295,12 +288,12 @@ bool runCommand(char** args)
     else 
     {
         //Wait for completion
-        while(wait(&status) != pid);
+        while (wait(&status) != pid);
         
         //Tests if command executed properly and if not sets success to false
-        if(WIFEXITED(status))
+        if (WIFEXITED(status))
         {
-            if(WEXITSTATUS(status) != 0)
+            if (WEXITSTATUS(status) != 0)
             {
                 ynSuccess = false;
             }
@@ -335,12 +328,12 @@ void rshell()
     //Catches specific case for Connector followed by # with no command
     //in between
     char* findHash = strpbrk(cmdCharString, "#");
-    if(findHash != NULL && findHash != cmdCharString)
+    if (findHash != NULL && findHash != cmdCharString)
     {
         findHash--;
-        while(*findHash == ' ' && findHash != cmdCharString)
+        while (*findHash == ' ' && findHash != cmdCharString)
             findHash--;
-        if(*findHash == '&' || *findHash == '|')
+        if (*findHash == '&' || *findHash == '|')
         {
             cout << "ERROR: Command string ends in " << *findHash << *findHash
                 << " and has no following command" << endl;
@@ -355,7 +348,7 @@ void rshell()
     queue<char*> commandQueue = findCommands(cmdCharString);
     
     //Makes sure the string doesn't end in a '&&' or '||' connector
-    if(commandQueue.size() <= connectorCharQueue.size() 
+    if (commandQueue.size() <= connectorCharQueue.size() 
         && (connectorCharQueue.back() == '|' 
         || connectorCharQueue.back() == '&'))
     {
@@ -367,14 +360,14 @@ void rshell()
     
     //Create a queue of connector* based on the connectorCharQueue
     queue<connector*> connectorQueue;
-    while(!connectorCharQueue.empty() && connectorCharQueue.front() != '#')
+    while (!connectorCharQueue.empty() && connectorCharQueue.front() != '#')
     {
-        if(connectorCharQueue.front() == '&')
+        if (connectorCharQueue.front() == '&')
         {
             andConnector* p = new andConnector();
             connectorQueue.push(p);
         }
-        else if(connectorCharQueue.front() == '|')
+        else if (connectorCharQueue.front() == '|')
         {
             orConnector* p = new orConnector();
             connectorQueue.push(p);
@@ -395,7 +388,7 @@ void rshell()
     
     //Run commands until we run out of commands to call
     //Don't run if first char is a hash
-    while(!commandQueue.empty() && !firstHash)
+    while (!commandQueue.empty() && !firstHash)
     {
         //Creates a queue with the seperate arguments for a command
         queue<char*> sepComQueue = seperateCommand(commandQueue.front());
@@ -416,9 +409,9 @@ void rshell()
         ynSuccess = runCommand(args);
         
         //Handles connectors
-        if(!connectorQueue.empty())
+        if (!connectorQueue.empty())
         {
-            while(!connectorQueue.empty() && !commandQueue.empty() &&
+            while (!connectorQueue.empty() && !commandQueue.empty() &&
                 !(connectorQueue.front()->isGoodOrNot(ynSuccess)))
             {
                 commandQueue.pop();
@@ -433,12 +426,12 @@ void rshell()
             
             //Special case to check for semi colon followed by # with no command
             //in between and at the end of command string
-            if(connectorQueue.empty() && connectorCharQueue.front() == '#')
+            if (connectorQueue.empty() && connectorCharQueue.front() == '#')
             {
                 char* sCHashCatcherString = new char[cmdString.size() + 1];
                 strcpy(sCHashCatcherString, commandQueue.front());
                 char* semiColonHashCatcher = strtok(sCHashCatcherString, " ");
-                if(semiColonHashCatcher == NULL)
+                if (semiColonHashCatcher == NULL)
                 {
                     delete[] sCHashCatcherString;
                     exit(0);
@@ -446,9 +439,9 @@ void rshell()
                 delete[] sCHashCatcherString;
             }
         }
-        else if(!connectorCharQueue.empty())
+        else if (!connectorCharQueue.empty())
         {
-            if(connectorCharQueue.front() == '#')
+            if (connectorCharQueue.front() == '#')
                 exit(0); 
         }
         
