@@ -230,8 +230,14 @@ void checkForStartingConnectors(char cmdCharString[])
         ((*cmdCharPointer == '&' && *(cmdCharPointer + 1) == '&') || 
         (*cmdCharPointer == '|' && *(cmdCharPointer + 1) == '|')))
     {
-        cout << "ERROR: " << *cmdCharPointer << *cmdCharPointer 
-            << " connector with no previous command" << endl;
+        cout << "ERROR: syntax error near unexpected token \'" 
+            << *cmdCharPointer << *cmdCharPointer << "\'" << endl;
+        exit(1);
+    }
+    if(cmdCharPointer != NULL && *cmdCharPointer == ';')
+    {
+        cout << "ERROR: syntax error near unexpected token \'" 
+            << *cmdCharPointer << "\'" << endl;
         exit(1);
     }
 }
@@ -326,9 +332,25 @@ void rshell()
     //Check for bad starting connectors
     checkForStartingConnectors(cmdCharString);
     
+    //Catches specific case for Connector followed by # with no command
+    //in between
+    char* findHash = strpbrk(cmdCharString, "#");
+    if(findHash != NULL && findHash != cmdCharString)
+    {
+        findHash--;
+        while(*findHash == ' ' && findHash != cmdCharString)
+            findHash--;
+        if(*findHash == '&' || *findHash == '|')
+        {
+            cout << "ERROR: Command string ends in " << *findHash << *findHash
+                << " and has no following command" << endl;
+            exit(1);
+        }
+    }
+    
     //Create a queue filled with connectors in order using findConnectors()
     queue<char> connectorCharQueue = findConnectors(cmdCharString);
-    
+        
     //Create a queue filled with commands in order using findCommands()
     queue<char*> commandQueue = findCommands(cmdCharString);
     
@@ -408,6 +430,21 @@ void rshell()
             connector* p = connectorQueue.front();
             delete p;
             connectorQueue.pop();
+            
+            //Special case to check for semi colon followed by # with no command
+            //in between and at the end of command string
+            if(connectorQueue.empty() && connectorCharQueue.front() == '#')
+            {
+                char* sCHashCatcherString = new char[cmdString.size() + 1];
+                strcpy(sCHashCatcherString, commandQueue.front());
+                char* semiColonHashCatcher = strtok(sCHashCatcherString, " ");
+                if(semiColonHashCatcher == NULL)
+                {
+                    delete[] sCHashCatcherString;
+                    exit(0);
+                }
+                delete[] sCHashCatcherString;
+            }
         }
         else if(!connectorCharQueue.empty())
         {
