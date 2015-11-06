@@ -21,7 +21,10 @@ src
         Description: Runs rshell.
         
     rshell.h
-        Description: Contains all code for rshell including functions and classes.
+        Description: Contains the connector classes and function declarations for rshell
+    
+    rshell.cpp
+        Description: Contains all the definitions for the functions declared within rshell.h
 tests
 
     single_command.sh
