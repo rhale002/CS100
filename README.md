@@ -39,13 +39,17 @@ tests
     base_test.sh
         Description: Used to test a basic command which was used for testing.
         
+Makefile
+
+    Description: Used to create a bin folder and move the rshell executable into it. Also includes a clean which removes the bin folder and its contents.
+    
 LICENSE
 
     Description: Contains license information for rshell project.
 
-Makefile
-
-    Description: Used to create a bin folder and move the rshell executable into it. Also includes a clean which removes the bin folder and its contents.
+README.md
+    
+    Description: The file you are now looking at which describes the program.
 
 #Sample Code
 Here is a quick example of the code which is used to run the entered commands:
