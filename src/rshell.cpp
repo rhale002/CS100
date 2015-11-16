@@ -205,12 +205,12 @@ void checkForSemiHashEnd(const queue<connector*> connectorQueue,
     const queue<char> connectorCharQueue, const queue<char*> commandQueue,
     const string cmdString)
 {
-    if (connectorQueue.empty() && connectorCharQueue.front() == '#')
+    if (connectorQueue.empty())
     {
         char* sCHashCatcherString = new char[cmdString.size() + 1];
         strcpy(sCHashCatcherString, commandQueue.front());
         char* semiColonHashCatcher = strtok(sCHashCatcherString, " ");
-        if (semiColonHashCatcher == NULL)
+        if (semiColonHashCatcher == NULL || *semiColonHashCatcher == '#')
         {
             delete[] sCHashCatcherString;
             exit(0);
@@ -384,7 +384,7 @@ void rshell()
     
     //Create a queue filled with connectors in order using findConnectors()
     queue<char> connectorCharQueue = findConnectors(cmdCharString);
-        
+    
     //Create a queue filled with commands in order using findCommands()
     queue<char*> commandQueue = findCommands(cmdCharString);
     
