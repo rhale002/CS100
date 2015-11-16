@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include "rshell.h"
 
@@ -51,7 +52,6 @@ queue<char> findConnectors(char cmdCharString[])
             }
             else if (*connectorPointer == ';')
                 connectorQueue.push(*connectorPointer);
-            
         }
         else
             conDoubCatcher = false;
@@ -166,7 +166,7 @@ void checkForConnectorHash(char cmdCharString[])
 }
 
 //Check for two connectors with no command inbetween
-void checkForTwoConnectorsNoSpace(char cmdCharString[])
+void checkForTwoConnectorsNoCmd(char cmdCharString[])
 {
     char* findDoubleConnectors = strpbrk(cmdCharString, ";&|");
     while (findDoubleConnectors != NULL && 
@@ -199,21 +199,6 @@ void checkForTwoConnectorsNoSpace(char cmdCharString[])
     }
 }
 
-//Makes sure the string doesn't end in a '&&' or '||' connector
-void checkIfEndsInBadConnector(const queue<char*> commandQueue,
-    const queue<char> connectorCharQueue)
-{
-    if (commandQueue.size() <= connectorCharQueue.size() 
-        && (connectorCharQueue.back() == '|' 
-        || connectorCharQueue.back() == '&'))
-    {
-        cout << "ERROR: Command string ends in " << connectorCharQueue.back() 
-            << connectorCharQueue.back() << " and has no following command" 
-            << endl;
-        exit(1);
-    }
-}
-
 //Special case to check for semi colon followed by # with no command
 //in between and at the end of command string
 void checkForSemiHashEnd(const queue<connector*> connectorQueue,
@@ -234,31 +219,18 @@ void checkForSemiHashEnd(const queue<connector*> connectorQueue,
     }
 }
 
-//Create a queue of connector* based on the connectorCharQueue
-queue<connector*> createConnectorQueue(queue<char> &connectorCharQueue)
+//Catches case in which empty command string is input
+void checkForEmptyString(char cmdCharString[], const string cmdString)
 {
-    queue<connector*> connectorQueue;
-    while (!connectorCharQueue.empty() && connectorCharQueue.front() != '#')
+    char* emptyStringCatcherString = new char[cmdString.size() + 1];
+    strcpy(emptyStringCatcherString, cmdCharString);
+    char* emptyStringCatcher = strtok(emptyStringCatcherString, " ");
+    if(emptyStringCatcher == NULL)
     {
-        if (connectorCharQueue.front() == '&')
-        {
-            andConnector* p = new andConnector();
-            connectorQueue.push(p);
-        }
-        else if (connectorCharQueue.front() == '|')
-        {
-            orConnector* p = new orConnector();
-            connectorQueue.push(p);
-        }
-        else
-        {
-            semiColonConnector* p = new semiColonConnector();
-            connectorQueue.push(p);
-        }
-        connectorCharQueue.pop();
+        delete[] emptyStringCatcherString;
+        exit(0);
     }
-    
-    return connectorQueue;
+    delete[] emptyStringCatcherString;
 }
 
 //Creates a queue with the seperate arguments for a command
@@ -293,6 +265,56 @@ bool runCommand(char** args)
 {
     //Create bool to store whether command execution was a success
     bool ynSuccess = true;
+    
+    //If command is test do this
+    if (strcmp(*args, "test") == 0)
+    {
+        struct stat buf;
+        
+        //If command has no flag or -e flag then check if file 
+        //exists and react accordingly
+        if (args[2] == NULL)
+        {
+            ynSuccess = (stat(args[1], &buf) == 0);
+            return ynSuccess;
+        }
+        //If flag is -e then check if file exists and react accordingly
+        else if (strcmp(args[1], "-e") == 0)
+        {
+            ynSuccess = (stat(args[2], &buf) == 0);
+            return ynSuccess;
+        }
+        //If command has -f flag then check if file is a regular 
+        //file and react accordingly
+        else if (strcmp(args[1], "-f") == 0)
+        {
+            ynSuccess = (stat(args[2], &buf) == 0);
+            if(ynSuccess)
+            {
+                if (S_ISREG(buf.st_mode))
+                    return true;
+            }
+            return false;
+        }
+        //If command has -d flag then check if file is a directory 
+        //and react accordingly
+        else if (strcmp(args[1], "-d") == 0)
+        {
+            ynSuccess = (stat(args[2], &buf) == 0);
+            if(ynSuccess)
+            {
+                if (S_ISDIR(buf.st_mode))
+                    return true;
+            }
+            return false;
+        }
+        //If they gave a bad flag then throw an error and exit
+        else
+        {
+            cout << "ERROR: Invalid test flag" << endl;
+            exit(1);
+        }
+    }
     
     pid_t pid;
     int status;
@@ -347,6 +369,9 @@ void rshell()
     //For making testing with files better looking
     cout << endl;
     
+    //Catches case in which empty command string is input
+    checkForEmptyString(cmdCharString, cmdString);
+    
     //Check for bad starting connectors
     checkForStartingConnectors(cmdCharString);
     
@@ -355,7 +380,7 @@ void rshell()
     checkForConnectorHash(cmdCharString);
     
     //Check for two connectors with no command inbetween
-    checkForTwoConnectorsNoSpace(cmdCharString);
+    checkForTwoConnectorsNoCmd(cmdCharString);
     
     //Create a queue filled with connectors in order using findConnectors()
     queue<char> connectorCharQueue = findConnectors(cmdCharString);
@@ -364,10 +389,37 @@ void rshell()
     queue<char*> commandQueue = findCommands(cmdCharString);
     
     //Makes sure the string doesn't end in a '&&' or '||' connector
-    checkIfEndsInBadConnector(commandQueue, connectorCharQueue);
+    if (commandQueue.size() <= connectorCharQueue.size() 
+        && (connectorCharQueue.back() == '|' 
+        || connectorCharQueue.back() == '&'))
+    {
+        cout << "ERROR: Command string ends in " << connectorCharQueue.back() 
+            << connectorCharQueue.back() << " and has no following command" 
+            << endl;
+        exit(1);
+    }
     
     //Create a queue of connector* based on the connectorCharQueue
-    queue<connector*> connectorQueue = createConnectorQueue(connectorCharQueue);
+    queue<connector*> connectorQueue;
+    while (!connectorCharQueue.empty() && connectorCharQueue.front() != '#')
+    {
+        if (connectorCharQueue.front() == '&')
+        {
+            andConnector* p = new andConnector();
+            connectorQueue.push(p);
+        }
+        else if (connectorCharQueue.front() == '|')
+        {
+            orConnector* p = new orConnector();
+            connectorQueue.push(p);
+        }
+        else
+        {
+            semiColonConnector* p = new semiColonConnector();
+            connectorQueue.push(p);
+        }
+        connectorCharQueue.pop();
+    }
     
     //Create bool to store whether command execution was a success
     bool ynSuccess = true;
@@ -420,9 +472,6 @@ void rshell()
         }
         else if (!connectorCharQueue.empty())
         {
-            //If it is the end of the connectorQueue and there is still a '#'
-            //in the connectorCharQueue then the command string ends in a hash
-            //and thus we exit(0) in order to stop executing things
             if (connectorCharQueue.front() == '#')
                 exit(0); 
         }
