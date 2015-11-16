@@ -146,6 +146,121 @@ void checkForStartingConnectors(char cmdCharString[])
     }
 }
 
+//Catches specific case for Connector followed by # with no command
+//in between
+void checkForConnectorHash(char cmdCharString[])
+{
+    char* findHash = strpbrk(cmdCharString, "#");
+    if (findHash != NULL && findHash != cmdCharString)
+    {
+        findHash--;
+        while (*findHash == ' ' && findHash != cmdCharString)
+            findHash--;
+        if (*findHash == '&' || *findHash == '|')
+        {
+            cout << "ERROR: Command string ends in " << *findHash << *findHash
+                << " and has no following command" << endl;
+            exit(1);
+        }
+    }
+}
+
+//Check for two connectors with no command inbetween
+void checkForTwoConnectorsNoSpace(char cmdCharString[])
+{
+    char* findDoubleConnectors = strpbrk(cmdCharString, ";&|");
+    while (findDoubleConnectors != NULL && 
+        findDoubleConnectors != cmdCharString)
+    {
+        bool skipChecking = false;
+        char* temp = findDoubleConnectors;
+        if(*temp == ';')
+            temp--;
+        else if((*temp == '|' || *temp == '&') && (*(temp - 1) == *temp))
+            temp = temp - 2;
+        else if((*temp == '|' || *temp == '&') && (*(temp - 1) != *temp))
+            skipChecking = true;
+            
+        while (*temp == ' ' && temp != cmdCharString && !skipChecking)
+            temp--;
+        if ((*temp == '&' || *temp == '|') && !skipChecking)
+        {
+            cout << "Syntax error near unexpected token \'" << *temp << *temp 
+                << "\'" << endl;
+            exit(1);
+        }
+        else if(*temp == ';' && !skipChecking)
+        {
+            cout << "Syntax error near unexpected token \'" << *temp << "\'" 
+                << endl;
+            exit(1);
+        }
+        findDoubleConnectors = strpbrk(findDoubleConnectors + 1, ";&|");
+    }
+}
+
+//Makes sure the string doesn't end in a '&&' or '||' connector
+void checkIfEndsInBadConnector(const queue<char*> commandQueue,
+    const queue<char> connectorCharQueue)
+{
+    if (commandQueue.size() <= connectorCharQueue.size() 
+        && (connectorCharQueue.back() == '|' 
+        || connectorCharQueue.back() == '&'))
+    {
+        cout << "ERROR: Command string ends in " << connectorCharQueue.back() 
+            << connectorCharQueue.back() << " and has no following command" 
+            << endl;
+        exit(1);
+    }
+}
+
+//Special case to check for semi colon followed by # with no command
+//in between and at the end of command string
+void checkForSemiHashEnd(const queue<connector*> connectorQueue,
+    const queue<char> connectorCharQueue, const queue<char*> commandQueue,
+    const string cmdString)
+{
+    if (connectorQueue.empty() && connectorCharQueue.front() == '#')
+    {
+        char* sCHashCatcherString = new char[cmdString.size() + 1];
+        strcpy(sCHashCatcherString, commandQueue.front());
+        char* semiColonHashCatcher = strtok(sCHashCatcherString, " ");
+        if (semiColonHashCatcher == NULL)
+        {
+            delete[] sCHashCatcherString;
+            exit(0);
+        }
+        delete[] sCHashCatcherString;
+    }
+}
+
+//Create a queue of connector* based on the connectorCharQueue
+queue<connector*> createConnectorQueue(queue<char> &connectorCharQueue)
+{
+    queue<connector*> connectorQueue;
+    while (!connectorCharQueue.empty() && connectorCharQueue.front() != '#')
+    {
+        if (connectorCharQueue.front() == '&')
+        {
+            andConnector* p = new andConnector();
+            connectorQueue.push(p);
+        }
+        else if (connectorCharQueue.front() == '|')
+        {
+            orConnector* p = new orConnector();
+            connectorQueue.push(p);
+        }
+        else
+        {
+            semiColonConnector* p = new semiColonConnector();
+            connectorQueue.push(p);
+        }
+        connectorCharQueue.pop();
+    }
+    
+    return connectorQueue;
+}
+
 //Creates a queue with the seperate arguments for a command
 queue<char*> seperateCommand(char command[])
 {
@@ -237,49 +352,10 @@ void rshell()
     
     //Catches specific case for Connector followed by # with no command
     //in between
-    char* findHash = strpbrk(cmdCharString, "#");
-    if (findHash != NULL && findHash != cmdCharString)
-    {
-        findHash--;
-        while (*findHash == ' ' && findHash != cmdCharString)
-            findHash--;
-        if (*findHash == '&' || *findHash == '|')
-        {
-            cout << "ERROR: Command string ends in " << *findHash << *findHash
-                << " and has no following command" << endl;
-            exit(1);
-        }
-    }
+    checkForConnectorHash(cmdCharString);
     
     //Check for two connectors with no command inbetween
-    char* findDoubleConnectors = strpbrk(cmdCharString, ";&|");
-    while (findDoubleConnectors != NULL && findDoubleConnectors != cmdCharString)
-    {
-        bool skipChecking = false;
-        char* temp = findDoubleConnectors;
-        if(*temp == ';')
-            temp--;
-        else if((*temp == '|' || *temp == '&') && (*(temp - 1) == *temp))
-            temp = temp - 2;
-        else if((*temp == '|' || *temp == '&') && (*(temp - 1) != *temp))
-            skipChecking = true;
-            
-        while (*temp == ' ' && temp != cmdCharString && !skipChecking)
-            temp--;
-        if ((*temp == '&' || *temp == '|') && !skipChecking)
-        {
-            cout << "Syntax error near unexpected token \'" << *temp << *temp 
-                << "\'" << endl;
-            exit(1);
-        }
-        else if(*temp == ';' && !skipChecking)
-        {
-            cout << "Syntax error near unexpected token \'" << *temp << "\'" 
-                << endl;
-            exit(1);
-        }
-        findDoubleConnectors = strpbrk(findDoubleConnectors + 1, ";&|");
-    }
+    checkForTwoConnectorsNoSpace(cmdCharString);
     
     //Create a queue filled with connectors in order using findConnectors()
     queue<char> connectorCharQueue = findConnectors(cmdCharString);
@@ -288,37 +364,10 @@ void rshell()
     queue<char*> commandQueue = findCommands(cmdCharString);
     
     //Makes sure the string doesn't end in a '&&' or '||' connector
-    if (commandQueue.size() <= connectorCharQueue.size() 
-        && (connectorCharQueue.back() == '|' 
-        || connectorCharQueue.back() == '&'))
-    {
-        cout << "ERROR: Command string ends in " << connectorCharQueue.back() 
-            << connectorCharQueue.back() << " and has no following command" 
-            << endl;
-        exit(1);
-    }
+    checkIfEndsInBadConnector(commandQueue, connectorCharQueue);
     
     //Create a queue of connector* based on the connectorCharQueue
-    queue<connector*> connectorQueue;
-    while (!connectorCharQueue.empty() && connectorCharQueue.front() != '#')
-    {
-        if (connectorCharQueue.front() == '&')
-        {
-            andConnector* p = new andConnector();
-            connectorQueue.push(p);
-        }
-        else if (connectorCharQueue.front() == '|')
-        {
-            orConnector* p = new orConnector();
-            connectorQueue.push(p);
-        }
-        else
-        {
-            semiColonConnector* p = new semiColonConnector();
-            connectorQueue.push(p);
-        }
-        connectorCharQueue.pop();
-    }
+    queue<connector*> connectorQueue = createConnectorQueue(connectorCharQueue);
     
     //Create bool to store whether command execution was a success
     bool ynSuccess = true;
@@ -366,21 +415,14 @@ void rshell()
             
             //Special case to check for semi colon followed by # with no command
             //in between and at the end of command string
-            if (connectorQueue.empty() && connectorCharQueue.front() == '#')
-            {
-                char* sCHashCatcherString = new char[cmdString.size() + 1];
-                strcpy(sCHashCatcherString, commandQueue.front());
-                char* semiColonHashCatcher = strtok(sCHashCatcherString, " ");
-                if (semiColonHashCatcher == NULL)
-                {
-                    delete[] sCHashCatcherString;
-                    exit(0);
-                }
-                delete[] sCHashCatcherString;
-            }
+            checkForSemiHashEnd(connectorQueue, connectorCharQueue,
+                commandQueue, cmdString);
         }
         else if (!connectorCharQueue.empty())
         {
+            //If it is the end of the connectorQueue and there is still a '#'
+            //in the connectorCharQueue then the command string ends in a hash
+            //and thus we exit(0) in order to stop executing things
             if (connectorCharQueue.front() == '#')
                 exit(0); 
         }
