@@ -199,26 +199,6 @@ void checkForTwoConnectorsNoCmd(char cmdCharString[])
     }
 }
 
-//Special case to check for semi colon followed by # with no command
-//in between and at the end of command string
-void checkForSemiHashEnd(const queue<connector*> connectorQueue,
-    const queue<char> connectorCharQueue, const queue<char*> commandQueue,
-    const string cmdString)
-{
-    if (connectorQueue.empty())
-    {
-        char* sCHashCatcherString = new char[cmdString.size() + 1];
-        strcpy(sCHashCatcherString, commandQueue.front());
-        char* semiColonHashCatcher = strtok(sCHashCatcherString, " ");
-        if (semiColonHashCatcher == NULL || *semiColonHashCatcher == '#')
-        {
-            delete[] sCHashCatcherString;
-            exit(0);
-        }
-        delete[] sCHashCatcherString;
-    }
-}
-
 //Catches case in which empty command string is input
 void checkForEmptyString(char cmdCharString[], const string cmdString)
 {
@@ -231,6 +211,24 @@ void checkForEmptyString(char cmdCharString[], const string cmdString)
         exit(0);
     }
     delete[] emptyStringCatcherString;
+}
+
+//Check for Semicolon followed by a hash with nothing inbetween
+void checkForSemiHashNoSpace(char cmdCharString[],
+    queue<char> &connectorCharQueue)
+{
+    bool foundIt = false;
+    char* semiHash = strpbrk(cmdCharString, ";");
+    while(semiHash != NULL && foundIt == false)
+    {
+        if((semiHash + 1) != NULL && *(semiHash + 1) == '#')
+        {
+            connectorCharQueue.push('#');
+            foundIt = true;
+        }
+        else
+            semiHash = strpbrk(semiHash + 1, ";");
+    }
 }
 
 //Creates a queue with the seperate arguments for a command
@@ -385,6 +383,9 @@ void rshell()
     //Create a queue filled with connectors in order using findConnectors()
     queue<char> connectorCharQueue = findConnectors(cmdCharString);
     
+    //Check for Semicolon followed by a hash with nothing inbetween
+    checkForSemiHashNoSpace(cmdCharString, connectorCharQueue);
+    
     //Create a queue filled with commands in order using findCommands()
     queue<char*> commandQueue = findCommands(cmdCharString);
     
@@ -467,8 +468,18 @@ void rshell()
             
             //Special case to check for semi colon followed by # with no command
             //in between and at the end of command string
-            checkForSemiHashEnd(connectorQueue, connectorCharQueue,
-                commandQueue, cmdString);
+            if (connectorQueue.empty() && connectorCharQueue.front() == '#')
+            {
+                char* sCHashCatcherString = new char[cmdString.size() + 1];
+                strcpy(sCHashCatcherString, commandQueue.front());
+                char* semiColonHashCatcher = strtok(sCHashCatcherString, " ");
+                if (semiColonHashCatcher == NULL || *semiColonHashCatcher == '#')
+                {
+                    delete[] sCHashCatcherString;
+                    exit(0);
+                }
+                delete[] sCHashCatcherString;
+            }
         }
         else if (!connectorCharQueue.empty())
         {
