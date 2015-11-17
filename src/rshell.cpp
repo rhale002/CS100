@@ -269,25 +269,45 @@ bool runCommand(char** args)
     {
         struct stat buf;
         
-        //If command has no flag or -e flag then check if file 
-        //exists and react accordingly
-        if (args[2] == NULL)
+        //Catch cases for too many arguments
+        if (args [1] != NULL && args[1][0] == '-' && args[2] != NULL 
+            && args[3] != NULL && args[4] == NULL)
         {
-            ynSuccess = (stat(args[1], &buf) == 0);
-            return ynSuccess;
+            cout << "test: " << args[2] << ": binary operator expected" << endl;
+            return false;
         }
-        //If flag is -e then check if file exists and react accordingly
-        else if (strcmp(args[1], "-e") == 0)
+        else if (args[1] != NULL && args[1][0] == '-' && args[2] != NULL 
+            && args[3] != NULL && args[4] != NULL)
         {
+            cout << "test: too many arguments" << endl;
+            return false;
+        }
+        
+        //If flag is -e then check if file exists and react accordingly
+        if (args[1] != NULL && strcmp(args[1], "-e") == 0)
+        {
+            if (args[2] == NULL)
+            {
+                return true;     
+            }
+            
+            //Act normally
             ynSuccess = (stat(args[2], &buf) == 0);
             return ynSuccess;
         }
         //If command has -f flag then check if file is a regular 
         //file and react accordingly
-        else if (strcmp(args[1], "-f") == 0)
+        else if (args[1] != NULL && strcmp(args[1], "-f") == 0)
         {
+            //Catch case where only flag is given
+            if(args[2] == NULL)
+            {
+                return true;     
+            }
+            
+            //Act normally
             ynSuccess = (stat(args[2], &buf) == 0);
-            if(ynSuccess)
+            if (ynSuccess)
             {
                 if (S_ISREG(buf.st_mode))
                     return true;
@@ -296,8 +316,15 @@ bool runCommand(char** args)
         }
         //If command has -d flag then check if file is a directory 
         //and react accordingly
-        else if (strcmp(args[1], "-d") == 0)
+        else if (args[1] != NULL && strcmp(args[1], "-d") == 0)
         {
+            //Catch case where only flag is given
+            if (args[2] == NULL)
+            {
+                return true;     
+            }
+            
+            //Act normally
             ynSuccess = (stat(args[2], &buf) == 0);
             if(ynSuccess)
             {
@@ -306,11 +333,36 @@ bool runCommand(char** args)
             }
             return false;
         }
-        //If they gave a bad flag then throw an error and exit
+        //If command has no flag then act as if it has a -e flag
+        else if (args[2] == NULL)
+        {
+            //Catch case no arguments for test are given
+            if (args[1] == NULL)
+            {
+                return true;
+            }
+            
+            //Act normally
+            ynSuccess = (stat(args[1], &buf) == 0);
+            return ynSuccess;
+        }
+        //catch if too many arguments
+        else if (args[1] != NULL && args[1][0] != '-' && args[2] != NULL 
+            && args[3] == NULL)
+        {
+            cout << "test: " << args[1] << ": binary operator expected" << endl;
+            return false;
+        }
+        else if (args[1] != NULL && args[2] != NULL && args[3] != NULL)
+        {
+            cout << "test: too many arguments" << endl;
+            return false;
+        }
+        //If they gave a bad flag then throw an error and return false
         else
         {
-            cout << "ERROR: Invalid test flag" << endl;
-            exit(1);
+            cout << "test: " << args[1] << ": unary operator expected" << endl;
+            return false;
         }
     }
     
