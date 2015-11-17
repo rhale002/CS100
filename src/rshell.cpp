@@ -249,7 +249,7 @@ queue<char*> seperateCommand(char command[])
         sepComQueue.push(test);
         
         //Check for end bracket
-        findBracket = strpbrk(command, "]");
+        findBracket = strpbrk(command, "#]");
         if(findBracket != NULL && *findBracket == ']')
         {
             //If end bracket exists then replace with space
@@ -263,6 +263,7 @@ queue<char*> seperateCommand(char command[])
         }
     }
     
+    //Seperate the commands and push them into the queue
     char* cmdCharPointer = strtok(command, " ");
     while (cmdCharPointer != NULL)
     {
@@ -309,9 +310,8 @@ bool runCommand(char** args)
             cout << "test: too many arguments" << endl;
             return false;
         }
-        
         //If flag is -e then check if file exists and react accordingly
-        if (args[1] != NULL && strcmp(args[1], "-e") == 0)
+        else if (args[1] != NULL && strcmp(args[1], "-e") == 0)
         {
             if (args[2] == NULL)
             {
@@ -388,6 +388,12 @@ bool runCommand(char** args)
         //If they gave a bad flag then throw an error and return false
         else
         {
+            //Catches case where # follows plain test command
+            if(args[1] == NULL)
+            {
+                cout << "GOT HERE" << endl;
+                return true;
+            }
             cout << "test: " << args[1] << ": unary operator expected" << endl;
             return false;
         }
