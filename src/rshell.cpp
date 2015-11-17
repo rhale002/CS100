@@ -236,6 +236,33 @@ queue<char*> seperateCommand(char command[])
 {
     queue<char*> sepComQueue;
     
+    //Check for [ ] symbolic test command
+    char* findBracket = strpbrk(command, "[");
+    if(findBracket != NULL && *findBracket == '[')
+    {
+        //replace the begining bracket with a space
+        *findBracket = ' ';
+        
+        //Push the word "test" onto the queue for later use as the test command
+        char* test = new char[5];
+        strcpy(test, "test");
+        sepComQueue.push(test);
+        
+        //Check for end bracket
+        findBracket = strpbrk(command, "]");
+        if(findBracket != NULL && *findBracket == ']')
+        {
+            //If end bracket exists then replace with space
+            *findBracket = ' ';
+        }
+        else
+        {
+            //Else throw and error and exit
+            cout << "[: missing \']\'" << endl;
+            exit(1);
+        }
+    }
+    
     char* cmdCharPointer = strtok(command, " ");
     while (cmdCharPointer != NULL)
     {
