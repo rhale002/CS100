@@ -247,15 +247,16 @@ void rshell()
                 findHash--;
             if (*findHash == '&' || *findHash == '|')
             {
-                cout << "ERROR: Command string ends in " << *findHash << *findHash
-                    << " and has no following command" << endl;
+                cout << "ERROR: Command string ends in " << *findHash 
+                    << *findHash << " and has no following command" << endl;
                 exit(1);
             }
         }
         
         //Check for two connectors with no command inbetween
         char* findDoubleConnectors = strpbrk(cmdCharString, ";&|");
-        while (findDoubleConnectors != NULL && findDoubleConnectors != cmdCharString)
+        while (findDoubleConnectors != NULL 
+            && findDoubleConnectors != cmdCharString)
         {
             bool skipChecking = false;
             char* temp = findDoubleConnectors;
@@ -270,8 +271,8 @@ void rshell()
                 temp--;
             if ((*temp == '&' || *temp == '|') && !skipChecking)
             {
-                cout << "Syntax error near unexpected token \'" << *temp << *temp 
-                    << "\'" << endl;
+                cout << "Syntax error near unexpected token \'" << *temp 
+                    << *temp << "\'" << endl;
                 exit(1);
             }
             else if(*temp == ';' && !skipChecking)
@@ -294,9 +295,9 @@ void rshell()
             && (connectorCharQueue.back() == '|' 
             || connectorCharQueue.back() == '&'))
         {
-            cout << "ERROR: Command string ends in " << connectorCharQueue.back() 
-                << connectorCharQueue.back() << " and has no following command" 
-                << endl;
+            cout << "ERROR: Command string ends in " 
+                << connectorCharQueue.back() << connectorCharQueue.back() 
+                << " and has no following command" << endl;
             exit(1);
         }
         
@@ -366,13 +367,14 @@ void rshell()
                 delete p;
                 connectorQueue.pop();
                 
-                //Special case to check for semi colon followed by # with no command
-                //in between and at the end of command string
+                //Special case to check for semi colon followed by # with
+                //no command in between and at the end of command string
                 if (connectorQueue.empty() && connectorCharQueue.front() == '#')
                 {
                     char* sCHashCatcherString = new char[cmdString.size() + 1];
                     strcpy(sCHashCatcherString, commandQueue.front());
-                    char* semiColonHashCatcher = strtok(sCHashCatcherString, " ");
+                    char* semiColonHashCatcher 
+                        = strtok(sCHashCatcherString, " ");
                     if (semiColonHashCatcher == NULL)
                     {
                         delete[] sCHashCatcherString;
