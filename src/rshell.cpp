@@ -220,6 +220,7 @@ bool runCommand(char** args)
 //Function to run the shell
 void rshell()
 {
+    while(true){
     //Output Command prompt
     cout << "$ ";
     
@@ -388,4 +389,5 @@ void rshell()
         delete[] args;
     }
     delete[] cmdCharString;
+    }
 }
