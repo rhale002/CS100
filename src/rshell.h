@@ -93,29 +93,6 @@ class semiColonConnector : public connector
         }
 };
 
-//Function which finds all the connectors in a char string and puts
-//them in a queue
-queue<char> findConnectors(char cmdCharString[]);
-
-//Read through input until first non whitespace char and if hash then return
-//true else return false
-bool firstCharHash(string cmdString);
-
-//Finds the commands and stores them in a queue for later use
-queue<char*> findCommands(char cmdCharString[]);
-
-//Checks for starting connector with no previous command
-void checkForStartingConnectors(char cmdCharString[]);
-
-//Creates a queue with the seperate arguments for a command
-queue<char*> seperateCommand(char command[]);
-
-//Fills the 2D array with all arguments for running the command
-void fillArgsArray(char** args, queue<char*> sepComQueue);
-
-//Runs the command and returns true if success else return false
-bool runCommand(char** args);
-
 //Function to run the shell
 void rshell();
 
