@@ -465,7 +465,7 @@ void rshell()
             || !checkForEmptyString(cmdCharString, cmdString));
         else
         {
-            //Create a queue filled with connectors in order 
+            //Create a queue filled with connectors in order
             //using findConnectors()
             queue<char> connectorCharQueue = findConnectors(cmdCharString);
             
@@ -474,7 +474,6 @@ void rshell()
             
             //Create a queue filled with commands in order using findCommands()
             queue<char*> commandQueue = findCommands(cmdCharString);
-            
             
             //Makes sure the string doesn't end in a '&&' or '||' connector
             if (commandQueue.size() <= connectorCharQueue.size() 
@@ -526,7 +525,7 @@ void rshell()
                     queue<char*> sepComQueue 
                         = seperateCommand(commandQueue.front(), keepGoing);
                     
-                    if (keepGoing)
+                    if (!keepGoing)
                     {
                         //Take one out of the queue of commands which
                         //need to be run
