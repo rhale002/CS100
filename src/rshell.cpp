@@ -540,6 +540,7 @@ bool runCommand(char** args)
         {
             perror(NULL);
             ynSuccess = false;
+            kill(getpid(), 2);
         }
     }
     
@@ -756,7 +757,8 @@ void rshell()
                                 {
                                     delete[] cmdCharString;
                                     delete[] args;
-                                    kill(getppid(), 2);
+                                    
+                                    kill(-getppid(), 2);
                                     return;
                                 }
                                 
