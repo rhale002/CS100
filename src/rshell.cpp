@@ -344,29 +344,55 @@ queue<char*> seperateCommand(char command[], bool &keepGoing)
     queue<char*> sepComQueue;
     
     //Check for [ ] symbolic test command
-    char* findBracket = strpbrk(command, "[");
+    char* findBracket = command;
+    while(findBracket != NULL && isspace(*findBracket))
+        findBracket++;
     if(findBracket != NULL && *findBracket == '[')
     {
-        //replace the begining bracket with a space
-        *findBracket = ' ';
-        
-        //Push the word "test" onto the queue for later use as the test command
-        char* test = new char[5];
-        strcpy(test, "test");
-        sepComQueue.push(test);
-        
-        //Check for end bracket
-        findBracket = strpbrk(command, "#]");
-        if(findBracket != NULL && *findBracket == ']')
+        findBracket++;
+        if(findBracket == NULL || *findBracket != ' ')
         {
-            //If end bracket exists then replace with space
-            *findBracket = ' ';
+            findBracket--;
+            //If [ not followed by space then error
+            char* errorOutput = strtok(findBracket, " ");
+            cout << errorOutput << ": command not found" << endl;
+            keepGoing = true;
         }
         else
         {
-            //Else throw and error and exit
-            cout << "[: missing \']\'" << endl;
-            keepGoing = true;
+            findBracket--;
+            //replace the begining bracket with a space
+            *findBracket = ' ';
+            
+            //Push the word "test" onto the queue for later use as the test command
+            char* test = new char[5];
+            strcpy(test, "test");
+            sepComQueue.push(test);
+            
+            //Check for end bracket
+            findBracket = strpbrk(command, "#]");
+            if(findBracket != NULL && *findBracket == ']')
+            {
+                findBracket--;
+                if(*findBracket != ' ')
+                {
+                    //Else throw and error and exit
+                    cout << "[: missing \']\' " << endl;
+                    keepGoing = true;
+                }
+                else
+                {
+                    findBracket++;
+                    //If end bracket exists then replace with space
+                    *findBracket = ' ';
+                }
+            }
+            else
+            {
+                //Else throw and error and exit
+                cout << "[: missing \']\' " << endl;
+                keepGoing = true;
+            }
         }
     }
     
