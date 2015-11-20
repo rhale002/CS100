@@ -565,23 +565,24 @@ void rshell()
             //Create a queue of connector* based on the connectorCharQueue
             queue<connector*> connectorQueue;
             
+            semiColonConnector semiConnectorobject;
+            andConnector andConnectorObject;
+            orConnector orConnectorObject;
+            
             while (!connectorCharQueue.empty() 
                 && connectorCharQueue.front() != '#')
             {
                 if (connectorCharQueue.front() == '&')
                 {
-                    andConnector* p = new andConnector();
-                    connectorQueue.push(p);
+                    connectorQueue.push(&andConnectorObject);
                 }
                 else if (connectorCharQueue.front() == '|')
                 {
-                    orConnector* p = new orConnector();
-                    connectorQueue.push(p);
+                    connectorQueue.push(&orConnectorObject);
                 }
                 else
                 {
-                    semiColonConnector* p = new semiColonConnector();
-                    connectorQueue.push(p);
+                    connectorQueue.push(&semiConnectorobject);
                 }
                 connectorCharQueue.pop();
             }
