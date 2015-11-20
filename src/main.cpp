@@ -4,10 +4,7 @@ using namespace std;
 
 int main()
 {
-    while(true)
-    {
-        rshell();
-    }
+    rshell();
     
     return 0;
 }
