@@ -16,7 +16,7 @@ using namespace std;
 
 //Function which finds all the connectors in a char string and puts
 //them in a queue
-queue<char> findConnectors(char cmdCharString[])
+queue<char> findConnectors(char cmdCharString[], bool &b)
 {
     queue<char> connectorQueue;
     
@@ -45,7 +45,8 @@ queue<char> findConnectors(char cmdCharString[])
             {
                 cout << "ERROR: Invalid connector: " << *connectorPointer 
                     << endl;
-                exit(1);
+                b = false;
+                return connectorQueue;
             }
             else if (*connectorPointer == '#' && *(connectorPointer - 1) == ' ')
             {
@@ -570,179 +571,100 @@ void rshell()
             || !checkForEmptyParen(cmdCharString));
         else
         {
+            bool b = true;
+            
             //Create a queue filled with connectors in order
             //using findConnectors()
-            queue<char> connectorCharQueue = findConnectors(cmdCharString);
+            queue<char> connectorCharQueue = findConnectors(cmdCharString, b);
             
-            //Check for Semicolon followed by a hash with nothing inbetween
-            checkForSemiHashNoSpace(cmdCharString, connectorCharQueue);
-            
-            //Create a queue filled with commands in order using findCommands()
-            queue<char*> commandQueue = findCommands(cmdCharString);
-            
-            //Makes sure the string doesn't end in a '&&' or '||' connector
-            if (commandQueue.size() <= connectorCharQueue.size() 
-                && (connectorCharQueue.back() == '|' 
-                || connectorCharQueue.back() == '&'))
+            if (b)
             {
-                cout << "ERROR: Command string ends in " 
-                    << connectorCharQueue.back() << connectorCharQueue.back() 
-                    << " and has no following command" << endl; 
-            }
-            else
-            {
-                //Create a queue of connector* based on the connectorCharQueue
-                queue<connector*> connectorQueue;
+                //Check for Semicolon followed by a hash with nothing inbetween
+                checkForSemiHashNoSpace(cmdCharString, connectorCharQueue);
                 
-                //Connectors to point at
-                semiColonConnector semiConnectorobject;
-                andConnector andConnectorObject;
-                orConnector orConnectorObject;
+                //Create a queue filled with commands in order using
+                //findCommands()
+                queue<char*> commandQueue = findCommands(cmdCharString);
                 
-                //fill the queue
-                while (!connectorCharQueue.empty() 
-                    && connectorCharQueue.front() != '#')
+                //Makes sure the string doesn't end in a '&&' or '||' connector
+                if (commandQueue.size() <= connectorCharQueue.size() 
+                    && (connectorCharQueue.back() == '|' 
+                    || connectorCharQueue.back() == '&'))
                 {
-                    if (connectorCharQueue.front() == '&')
-                    {
-                        connectorQueue.push(&andConnectorObject);
-                    }
-                    else if (connectorCharQueue.front() == '|')
-                    {
-                        connectorQueue.push(&orConnectorObject);
-                    }
-                    else
-                    {
-                        connectorQueue.push(&semiConnectorobject);
-                    }
-                    connectorCharQueue.pop();
+                    cout << "ERROR: Command string ends in " 
+                        << connectorCharQueue.back() 
+                        << connectorCharQueue.back() 
+                        << " and has no following command" << endl; 
                 }
-                
-                //Create bool to store whether command execution was a success
-                bool ynSuccess = true;
-                
-                //Create a bool for checking if the first non space 
-                //character is a hash
-                bool keepGoing = firstCharHash(cmdString);
-                
-                //Stack of bools for keeping track of parentheses
-                stack<bool> parenStack;
-                
-                //Run commands until we run out of commands to call
-                //Don't run if first char is a hash
-                while (!commandQueue.empty() && !keepGoing)
+                else
                 {
-                    //Handle Parentheses skipping/recording
-                    char* parenFinder = strpbrk(commandQueue.front(), "(");
-                    while (parenFinder != NULL && *parenFinder == '(')
+                    //Create a queue of connector* based on the
+                    //connectorCharQueue
+                    queue<connector*> connectorQueue;
+                    
+                    //Connectors to point at
+                    semiColonConnector semiConnectorobject;
+                    andConnector andConnectorObject;
+                    orConnector orConnectorObject;
+                    
+                    //fill the queue
+                    while (!connectorCharQueue.empty() 
+                        && connectorCharQueue.front() != '#')
                     {
-                        parenStack.push(true);
-                        *parenFinder = ' ';
-                        parenFinder = strpbrk(parenFinder + 1, "(");
-                    }
-                    parenFinder = strpbrk(commandQueue.front(), ")");
-                    while (parenFinder != NULL && *parenFinder == ')')
-                    {
-                        parenStack.pop();
-                        *parenFinder = ' ';
-                        parenFinder = strpbrk(parenFinder + 1, ")");
+                        if (connectorCharQueue.front() == '&')
+                        {
+                            connectorQueue.push(&andConnectorObject);
+                        }
+                        else if (connectorCharQueue.front() == '|')
+                        {
+                            connectorQueue.push(&orConnectorObject);
+                        }
+                        else
+                        {
+                            connectorQueue.push(&semiConnectorobject);
+                        }
+                        connectorCharQueue.pop();
                     }
                     
-                    //handle parentheses block skipping
-                    if (!parenStack.empty() && !ynSuccess 
-                        && !connectorQueue.empty() 
-                        && !commandQueue.empty() 
-                        && !(connectorQueue.front()->isGoodOrNot(ynSuccess)))
+                    //Create bool to store whether command execution was
+                    //a success
+                    bool ynSuccess = true;
+                    
+                    //Create a bool for checking if the first non space 
+                    //character is a hash
+                    bool keepGoing = firstCharHash(cmdString);
+                    
+                    //Stack of bools for keeping track of parentheses
+                    stack<bool> parenStack;
+                    
+                    //Run commands until we run out of commands to call
+                    //Don't run if first char is a hash
+                    while (!commandQueue.empty() && !keepGoing)
                     {
-                        commandQueue.pop();
-                        
-                        //Handles connectors
-                        if (!connectorQueue.empty())
+                        //Handle Parentheses skipping/recording
+                        char* parenFinder = strpbrk(commandQueue.front(), "(");
+                        while (parenFinder != NULL && *parenFinder == '(')
                         {
-                            while (!connectorQueue.empty() 
-                                && !commandQueue.empty() 
-                                && !(connectorQueue.front()
-                                    ->isGoodOrNot(ynSuccess)))
-                            {
-                                parenFinder = strpbrk(commandQueue.front(), "(");
-                                while (parenFinder != NULL && *parenFinder == '(')
-                                {
-                                    parenStack.push(true);
-                                    *parenFinder = ' ';
-                                    parenFinder = strpbrk(parenFinder + 1, "(");
-                                }
-                                parenFinder = strpbrk(commandQueue.front(), ")");
-                                while (parenFinder != NULL && *parenFinder == ')')
-                                {
-                                    parenStack.pop();
-                                    *parenFinder = ' ';
-                                    parenFinder = strpbrk(parenFinder + 1, ")");
-                                }
-                                
-                                commandQueue.pop();
-                                connectorQueue.pop();
-                            }
-                            connectorQueue.pop();
-                            
-                            //Special case to check for semi colon followed by
-                            //# with no command in between and at the end of
-                            //command string
-                            if (connectorQueue.empty() 
-                                && connectorCharQueue.front() == '#')
-                            {
-                                char* sCHashCatcherString 
-                                    = new char[cmdString.size() + 1];
-                                strcpy(sCHashCatcherString,
-                                    commandQueue.front());
-                                char* semiColonHashCatcher 
-                                    = strtok(sCHashCatcherString, " ");
-                                if (semiColonHashCatcher == NULL 
-                                    || *semiColonHashCatcher == '#')
-                                {
-                                    delete[] sCHashCatcherString;
-                                    keepGoing = true;
-                                }
-                                else
-                                {
-                                    delete[] sCHashCatcherString;
-                                }
-                            }
+                            parenStack.push(true);
+                            *parenFinder = ' ';
+                            parenFinder = strpbrk(parenFinder + 1, "(");
                         }
-                        else if (!connectorCharQueue.empty())
+                        parenFinder = strpbrk(commandQueue.front(), ")");
+                        while (parenFinder != NULL && *parenFinder == ')')
                         {
-                            if (connectorCharQueue.front() == '#')
-                                keepGoing = true;
+                            parenStack.pop();
+                            *parenFinder = ' ';
+                            parenFinder = strpbrk(parenFinder + 1, ")");
                         }
-                    }
-                    //Do commands normally
-                    else
-                    {
-                        //Creates a queue with the seperate arguments for a command
-                        queue<char*> sepComQueue 
-                            = seperateCommand(commandQueue.front(), keepGoing);
                         
-                        if (!keepGoing)
+                        //handle parentheses block skipping
+                        if (!parenStack.empty() && !ynSuccess 
+                            && !connectorQueue.empty() 
+                            && !commandQueue.empty() 
+                            && !(connectorQueue.front()
+                                ->isGoodOrNot(ynSuccess)))
                         {
-                            //Take one out of the queue of commands which
-                            //need to be run
                             commandQueue.pop();
-                            
-                            //Create a 2D array and store all arguments for command
-                            unsigned argsSize = sepComQueue.size() + 1;
-                            char** args = new char*[argsSize];
-                            fillArgsArray(args, sepComQueue);
-                            
-                            //If command is exit then exit
-                            if (strcmp(*args, "exit") == 0)
-                            {
-                                delete[] cmdCharString;
-                                delete[] args;
-                                kill(getppid(), 2);
-                                return;
-                            }
-                            
-                            //Run the command and store whether it was a success
-                            ynSuccess = runCommand(args);
                             
                             //Handles connectors
                             if (!connectorQueue.empty())
@@ -752,20 +674,25 @@ void rshell()
                                     && !(connectorQueue.front()
                                         ->isGoodOrNot(ynSuccess)))
                                 {
-                                    //Handle Parentheses skipping/recording
-                                    parenFinder = strpbrk(commandQueue.front(), "(");
-                                    while (parenFinder != NULL && *parenFinder == '(')
+                                    parenFinder 
+                                        = strpbrk(commandQueue.front(), "(");
+                                    while (parenFinder != NULL 
+                                        && *parenFinder == '(')
                                     {
                                         parenStack.push(true);
                                         *parenFinder = ' ';
-                                        parenFinder = strpbrk(parenFinder + 1, "(");
+                                        parenFinder 
+                                            = strpbrk(parenFinder + 1, "(");
                                     }
-                                    parenFinder = strpbrk(commandQueue.front(), ")");
-                                    while (parenFinder != NULL && *parenFinder == ')')
+                                    parenFinder 
+                                        = strpbrk(commandQueue.front(), ")");
+                                    while (parenFinder != NULL 
+                                        && *parenFinder == ')')
                                     {
                                         parenStack.pop();
                                         *parenFinder = ' ';
-                                        parenFinder = strpbrk(parenFinder + 1, ")");
+                                        parenFinder 
+                                            = strpbrk(parenFinder + 1, ")");
                                     }
                                     
                                     commandQueue.pop();
@@ -773,9 +700,9 @@ void rshell()
                                 }
                                 connectorQueue.pop();
                                 
-                                //Special case to check for semi colon followed by
-                                //# with no command in between and at the end of
-                                //command string
+                                //Special case to check for semi colon followed
+                                //by # with no command in between and at the
+                                //end of command string
                                 if (connectorQueue.empty() 
                                     && connectorCharQueue.front() == '#')
                                 {
@@ -802,7 +729,109 @@ void rshell()
                                 if (connectorCharQueue.front() == '#')
                                     keepGoing = true;
                             }
-                            delete[] args;
+                        }
+                        //Do commands normally
+                        else
+                        {
+                            //Creates a queue with the seperate arguments for
+                            //a command
+                            queue<char*> sepComQueue 
+                                = seperateCommand(commandQueue.front()
+                                    , keepGoing);
+                            
+                            if (!keepGoing)
+                            {
+                                //Take one out of the queue of commands which
+                                //need to be run
+                                commandQueue.pop();
+                                
+                                //Create a 2D array and store all arguments for 
+                                //command
+                                unsigned argsSize = sepComQueue.size() + 1;
+                                char** args = new char*[argsSize];
+                                fillArgsArray(args, sepComQueue);
+                                
+                                //If command is exit then exit
+                                if (strcmp(*args, "exit") == 0)
+                                {
+                                    delete[] cmdCharString;
+                                    delete[] args;
+                                    kill(getppid(), 2);
+                                    return;
+                                }
+                                
+                                //Run the command and store whether it was a
+                                //success
+                                ynSuccess = runCommand(args);
+                                
+                                //Handles connectors
+                                if (!connectorQueue.empty())
+                                {
+                                    while (!connectorQueue.empty() 
+                                        && !commandQueue.empty() 
+                                        && !(connectorQueue.front()
+                                            ->isGoodOrNot(ynSuccess)))
+                                    {
+                                        //Handle Parentheses skipping/recording
+                                        parenFinder 
+                                            = strpbrk(commandQueue.front()
+                                                , "(");
+                                        while (parenFinder != NULL 
+                                            && *parenFinder == '(')
+                                        {
+                                            parenStack.push(true);
+                                            *parenFinder = ' ';
+                                            parenFinder 
+                                                = strpbrk(parenFinder + 1, "(");
+                                        }
+                                        parenFinder 
+                                            = strpbrk(commandQueue.front()
+                                                , ")");
+                                        while (parenFinder != NULL 
+                                            && *parenFinder == ')')
+                                        {
+                                            parenStack.pop();
+                                            *parenFinder = ' ';
+                                            parenFinder 
+                                                = strpbrk(parenFinder + 1, ")");
+                                        }
+                                        
+                                        commandQueue.pop();
+                                        connectorQueue.pop();
+                                    }
+                                    connectorQueue.pop();
+                                    
+                                    //Special case to check for semi colon 
+                                    //followed by # with no command in between
+                                    //and at the end of command string
+                                    if (connectorQueue.empty() 
+                                        && connectorCharQueue.front() == '#')
+                                    {
+                                        char* sCHashCatcherString 
+                                            = new char[cmdString.size() + 1];
+                                        strcpy(sCHashCatcherString,
+                                            commandQueue.front());
+                                        char* semiColonHashCatcher 
+                                            = strtok(sCHashCatcherString, " ");
+                                        if (semiColonHashCatcher == NULL 
+                                            || *semiColonHashCatcher == '#')
+                                        {
+                                            delete[] sCHashCatcherString;
+                                            keepGoing = true;
+                                        }
+                                        else
+                                        {
+                                            delete[] sCHashCatcherString;
+                                        }
+                                    }
+                                }
+                                else if (!connectorCharQueue.empty())
+                                {
+                                    if (connectorCharQueue.front() == '#')
+                                        keepGoing = true;
+                                }
+                                delete[] args;
+                            }
                         }
                     }
                 }
