@@ -425,6 +425,8 @@ bool runCommand(char** args)
     //Create bool to store whether command execution was a success
     bool ynSuccess = true;
     
+    cout << args[2] << endl;
+    
     //If command is test do this
     if (strcmp(*args, "test") == 0)
     {
