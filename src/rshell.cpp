@@ -664,16 +664,25 @@ void rshell()
                     //Stack of bools for keeping track of parentheses
                     stack<bool> parenStack;
                     
+                    //Bool for telling when to skip blocks
                     bool skipBool = false;
+                    
+                    //Bool to tell if it is the first time running a command
                     bool firstRun = true;
+                    
+                    //Bool for seeing if the next command has an open paren
+                    //to an open paren
                     bool goodToOpenParen = false;
+                    
+                    //keeps track of size of stack before popping blocks
                     unsigned stackSize = 0;
                     
                     //Run commands until we run out of commands to call
                     //Don't run if first char is a hash
                     while (!commandQueue.empty() && !keepGoing)
                     {
-                        
+                        //Used to see what size the stack was before going
+                        //through current parens
                         unsigned beforeSize = parenStack.size();
                         
                         //Handle Parentheses skipping/recording
@@ -697,22 +706,28 @@ void rshell()
                             parenFinder = strpbrk(parenFinder + 1, ")");
 
                         }
+                        
+                        //Set stackSize for later use in paren block skipping
                         stackSize = parenStack.size() - beforeSize;
 
                         //handle parentheses block skipping
                         if (skipBool && !commandQueue.empty())
                         {
+                            //Resets goodToOpenParen
                             goodToOpenParen = false;
                             
                             //Handles connectors
                             if (!connectorQueue.empty())
                             {
+                                //Set up variables for block skipping
                                 int checker = 1;
                                 bool wasEmpty;
                                 if(parenStack.empty())
                                     wasEmpty = true;
                                 else
                                     wasEmpty = false;
+                                    
+                                //Go about block skipping
                                 while ((checker == 1 || checker == 0)
                                     && !connectorQueue.empty() 
                                     && !commandQueue.empty())
@@ -741,42 +756,60 @@ void rshell()
                                         parenFinder 
                                             = strpbrk(parenFinder + 1, ")");
                                     }
+                                    
+                                    //If it was empty and checker is 0 then end
+                                    //looping
                                     if(wasEmpty && checker == 0)
                                     {
                                         checker = -1;
                                     }
+                                    //else pop a command and connector and 
+                                    //continue
                                     else
                                     {
                                         commandQueue.pop();
                                         connectorQueue.pop();
                                     }
                                     
-                                    if(parenStack.empty() || parenStack.size() > stackSize)
+                                    //Decrement checker if empty or greater than
+                                    //stackSize
+                                    if(parenStack.empty() 
+                                        || parenStack.size() > stackSize)
                                             checker--;
-                                            
+                                    
+                                    //Change wasEmpty based on whether 
+                                    //parenStack is empty
                                     if(parenStack.empty())
                                         wasEmpty = true;
                                     else
                                         wasEmpty = false;
                                 }
                                 
+                                //If the next command has an open paren then 
+                                //set goodToOpenParen to true and don't pop
+                                //The connector
                                 if(!commandQueue.empty() 
                                     && strpbrk(commandQueue.front(), "(") 
                                     != NULL)
                                 {
                                     goodToOpenParen = true;
                                 }
-                                //Handles connectors
+                                //else Handle connectors
                                 else if (!connectorQueue.empty())
                                 {
+                                    //If goodToOpenParen was previously set then
+                                    //Pop a connector and set it back to false
                                     if(goodToOpenParen)
                                     {
                                         connectorQueue.pop();
                                         goodToOpenParen = false;
                                     }
                                     
+                                    //Bool for deciding when to exit the 
+                                    //connector deleting loop
                                     bool exitConnectorDeletingLoop = false;
                                     
+                                    //Loop for deleting connectors
                                     while (!connectorQueue.empty() 
                                         && !commandQueue.empty() 
                                         && !(connectorQueue.front()
@@ -813,12 +846,16 @@ void rshell()
                                         commandQueue.pop();
                                         connectorQueue.pop();
                                     }
+                                    //If the next command has an open paren then 
+                                    //set goodToOpenParen to true and don't pop
+                                    //The connector
                                     if(!commandQueue.empty() 
                                     && strpbrk(commandQueue.front(), "(") 
                                     != NULL)
                                     {
                                         goodToOpenParen = true;
                                     }
+                                    //else pop a connector
                                     else
                                     {
                                         connectorQueue.pop();
@@ -854,6 +891,8 @@ void rshell()
                                         keepGoing = true;
                                 }
                             }
+                            //Reset skip bool to false since block skipping is
+                            //complete
                             skipBool = false;
                         }
                         //Do commands normally
@@ -865,8 +904,11 @@ void rshell()
                                 = seperateCommand(commandQueue.front()
                                     , keepGoing);
                             
+                            //If no problems while seperating the command then
+                            //continue
                             if (!keepGoing)
                             {
+                                //If it got here then set firstRun to false
                                 firstRun = false;
                                 
                                 //Take one out of the queue of commands which
@@ -893,23 +935,31 @@ void rshell()
                                 //success
                                 ynSuccess = runCommand(args);
                                 
+                                //If the next command has an open paren then 
+                                //set goodToOpenParen to true and don't pop
+                                //The connector
                                 if(!commandQueue.empty() 
                                     && strpbrk(commandQueue.front(), "(") 
                                     != NULL)
                                 {
                                     goodToOpenParen = true;
                                 }
-                                //Handles connectors
+                                //else Handle connectors
                                 else if (!connectorQueue.empty())
                                 {
+                                    //If goodToOpenParen was previously set then
+                                    //Pop a connector and set it back to false
                                     if(goodToOpenParen)
                                     {
                                         connectorQueue.pop();
                                         goodToOpenParen = false;
                                     }
                                     
+                                    //Bool for deciding when to exit the 
+                                    //connector deleting loop
                                     bool exitConnectorDeletingLoop = false;
                                     
+                                    //Loop for deleting connectors
                                     while (!connectorQueue.empty() 
                                         && !commandQueue.empty() 
                                         && !(connectorQueue.front()
@@ -946,12 +996,16 @@ void rshell()
                                         commandQueue.pop();
                                         connectorQueue.pop();
                                     }
+                                    //If the next command has an open paren then 
+                                    //set goodToOpenParen to true and don't pop
+                                    //The connector
                                     if(!commandQueue.empty() 
                                     && strpbrk(commandQueue.front(), "(") 
                                     != NULL)
                                     {
                                         goodToOpenParen = true;
                                     }
+                                    //else pop a connector
                                     else
                                     {
                                         connectorQueue.pop();
@@ -986,15 +1040,17 @@ void rshell()
                                     if (connectorCharQueue.front() == '#')
                                         keepGoing = true;
                                 }
+                                //Delete the args command strings
                                 delete[] args;
                             }
                         }
-                        
+                        //set firstRun to false
                         firstRun = false;
                     }
                 }
             }
         }
+        //delete the cmdCharString
         delete[] cmdCharString;
     }
 }
