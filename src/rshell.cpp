@@ -664,10 +664,18 @@ void rshell()
                     //Stack of bools for keeping track of parentheses
                     stack<bool> parenStack;
                     
+                    bool skipBool = false;
+                    bool firstRun = true;
+                    bool goodToOpenParen = false;
+                    unsigned stackSize = 0;
+                    
                     //Run commands until we run out of commands to call
                     //Don't run if first char is a hash
                     while (!commandQueue.empty() && !keepGoing)
                     {
+                        
+                        unsigned beforeSize = parenStack.size();
+                        
                         //Handle Parentheses skipping/recording
                         char* parenFinder = strpbrk(commandQueue.front(), "(");
                         while (parenFinder != NULL && *parenFinder == '(')
@@ -675,6 +683,11 @@ void rshell()
                             parenStack.push(true);
                             *parenFinder = ' ';
                             parenFinder = strpbrk(parenFinder + 1, "(");
+                            
+                            if(!firstRun && !connectorQueue.empty()
+                                && !(connectorQueue.front() 
+                                ->isGoodOrNot(ynSuccess)))
+                                skipBool = true;
                         }
                         parenFinder = strpbrk(commandQueue.front(), ")");
                         while (parenFinder != NULL && *parenFinder == ')')
@@ -682,27 +695,31 @@ void rshell()
                             parenStack.pop();
                             *parenFinder = ' ';
                             parenFinder = strpbrk(parenFinder + 1, ")");
+
                         }
-                        
+                        stackSize = parenStack.size() - beforeSize;
+
                         //handle parentheses block skipping
-                        if (!parenStack.empty() && !ynSuccess 
-                            && !connectorQueue.empty() 
-                            && !commandQueue.empty() 
-                            && !(connectorQueue.front()
-                                ->isGoodOrNot(ynSuccess)))
+                        if (skipBool && !commandQueue.empty())
                         {
-                            commandQueue.pop();
+                            goodToOpenParen = false;
                             
                             //Handles connectors
                             if (!connectorQueue.empty())
                             {
-                                while (!connectorQueue.empty() 
-                                    && !commandQueue.empty() 
-                                    && !(connectorQueue.front()
-                                        ->isGoodOrNot(ynSuccess)))
+                                int checker = 1;
+                                bool wasEmpty;
+                                if(parenStack.empty())
+                                    wasEmpty = true;
+                                else
+                                    wasEmpty = false;
+                                while ((checker == 1 || checker == 0)
+                                    && !connectorQueue.empty() 
+                                    && !commandQueue.empty())
                                 {
                                     parenFinder 
                                         = strpbrk(commandQueue.front(), "(");
+                                        
                                     while (parenFinder != NULL 
                                         && *parenFinder == '(')
                                     {
@@ -710,6 +727,9 @@ void rshell()
                                         *parenFinder = ' ';
                                         parenFinder 
                                             = strpbrk(parenFinder + 1, "(");
+                                        if(!firstRun && !(connectorQueue.front()
+                                            ->isGoodOrNot(ynSuccess)))
+                                            checker = 1;
                                     }
                                     parenFinder 
                                         = strpbrk(commandQueue.front(), ")");
@@ -721,41 +741,120 @@ void rshell()
                                         parenFinder 
                                             = strpbrk(parenFinder + 1, ")");
                                     }
-                                    
-                                    commandQueue.pop();
-                                    connectorQueue.pop();
-                                }
-                                connectorQueue.pop();
-                                
-                                //Special case to check for semi colon followed
-                                //by # with no command in between and at the
-                                //end of command string
-                                if (connectorQueue.empty() 
-                                    && connectorCharQueue.front() == '#')
-                                {
-                                    char* sCHashCatcherString 
-                                        = new char[cmdString.size() + 1];
-                                    strcpy(sCHashCatcherString,
-                                        commandQueue.front());
-                                    char* semiColonHashCatcher 
-                                        = strtok(sCHashCatcherString, " ");
-                                    if (semiColonHashCatcher == NULL 
-                                        || *semiColonHashCatcher == '#')
+                                    if(wasEmpty && checker == 0)
                                     {
-                                        delete[] sCHashCatcherString;
-                                        keepGoing = true;
+                                        checker = -1;
                                     }
                                     else
                                     {
-                                        delete[] sCHashCatcherString;
+                                        commandQueue.pop();
+                                        connectorQueue.pop();
+                                    }
+                                    
+                                    if(parenStack.empty() || parenStack.size() > stackSize)
+                                            checker--;
+                                            
+                                    if(parenStack.empty())
+                                        wasEmpty = true;
+                                    else
+                                        wasEmpty = false;
+                                }
+                                
+                                if(!commandQueue.empty() 
+                                    && strpbrk(commandQueue.front(), "(") 
+                                    != NULL)
+                                {
+                                    goodToOpenParen = true;
+                                }
+                                //Handles connectors
+                                else if (!connectorQueue.empty())
+                                {
+                                    if(goodToOpenParen)
+                                    {
+                                        connectorQueue.pop();
+                                        goodToOpenParen = false;
+                                    }
+                                    
+                                    bool exitConnectorDeletingLoop = false;
+                                    
+                                    while (!connectorQueue.empty() 
+                                        && !commandQueue.empty() 
+                                        && !(connectorQueue.front()
+                                            ->isGoodOrNot(ynSuccess))
+                                        && !exitConnectorDeletingLoop)
+                                    {
+                                        //Handle Parentheses skipping/recording
+                                        parenFinder 
+                                            = strpbrk(commandQueue.front()
+                                                , "(");
+                                        while (parenFinder != NULL 
+                                            && *parenFinder == '(')
+                                        {
+                                            parenStack.push(true);
+                                            *parenFinder = ' ';
+                                            parenFinder 
+                                                = strpbrk(parenFinder + 1, "(");
+                                            if(!firstRun)
+                                                skipBool = true;
+                                        }
+                                        parenFinder 
+                                            = strpbrk(commandQueue.front()
+                                                , ")");
+                                        while (parenFinder != NULL 
+                                            && *parenFinder == ')')
+                                        {
+                                            exitConnectorDeletingLoop = true;
+                                            
+                                            parenStack.pop();
+                                            *parenFinder = ' ';
+                                            parenFinder 
+                                                = strpbrk(parenFinder + 1, ")");
+                                        }   
+                                        commandQueue.pop();
+                                        connectorQueue.pop();
+                                    }
+                                    if(!commandQueue.empty() 
+                                    && strpbrk(commandQueue.front(), "(") 
+                                    != NULL)
+                                    {
+                                        goodToOpenParen = true;
+                                    }
+                                    else
+                                    {
+                                        connectorQueue.pop();
+                                    }
+                                    
+                                    //Special case to check for semi colon 
+                                    //followed by # with no command in between
+                                    //and at the end of command string
+                                    if (connectorQueue.empty() 
+                                        && connectorCharQueue.front() == '#')
+                                    {
+                                        char* sCHashCatcherString 
+                                            = new char[cmdString.size() + 1];
+                                        strcpy(sCHashCatcherString,
+                                            commandQueue.front());
+                                        char* semiColonHashCatcher 
+                                            = strtok(sCHashCatcherString, " ");
+                                        if (semiColonHashCatcher == NULL 
+                                            || *semiColonHashCatcher == '#')
+                                        {
+                                            delete[] sCHashCatcherString;
+                                            keepGoing = true;
+                                        }
+                                        else
+                                        {
+                                            delete[] sCHashCatcherString;
+                                        }
                                     }
                                 }
+                                else if (!connectorCharQueue.empty())
+                                {
+                                    if (connectorCharQueue.front() == '#')
+                                        keepGoing = true;
+                                }
                             }
-                            else if (!connectorCharQueue.empty())
-                            {
-                                if (connectorCharQueue.front() == '#')
-                                    keepGoing = true;
-                            }
+                            skipBool = false;
                         }
                         //Do commands normally
                         else
@@ -768,6 +867,8 @@ void rshell()
                             
                             if (!keepGoing)
                             {
+                                firstRun = false;
+                                
                                 //Take one out of the queue of commands which
                                 //need to be run
                                 commandQueue.pop();
@@ -792,13 +893,28 @@ void rshell()
                                 //success
                                 ynSuccess = runCommand(args);
                                 
-                                //Handles connectors
-                                if (!connectorQueue.empty())
+                                if(!commandQueue.empty() 
+                                    && strpbrk(commandQueue.front(), "(") 
+                                    != NULL)
                                 {
+                                    goodToOpenParen = true;
+                                }
+                                //Handles connectors
+                                else if (!connectorQueue.empty())
+                                {
+                                    if(goodToOpenParen)
+                                    {
+                                        connectorQueue.pop();
+                                        goodToOpenParen = false;
+                                    }
+                                    
+                                    bool exitConnectorDeletingLoop = false;
+                                    
                                     while (!connectorQueue.empty() 
                                         && !commandQueue.empty() 
                                         && !(connectorQueue.front()
-                                            ->isGoodOrNot(ynSuccess)))
+                                            ->isGoodOrNot(ynSuccess))
+                                        && !exitConnectorDeletingLoop)
                                     {
                                         //Handle Parentheses skipping/recording
                                         parenFinder 
@@ -811,6 +927,8 @@ void rshell()
                                             *parenFinder = ' ';
                                             parenFinder 
                                                 = strpbrk(parenFinder + 1, "(");
+                                            if(!firstRun)
+                                                skipBool = true;
                                         }
                                         parenFinder 
                                             = strpbrk(commandQueue.front()
@@ -818,16 +936,26 @@ void rshell()
                                         while (parenFinder != NULL 
                                             && *parenFinder == ')')
                                         {
+                                            exitConnectorDeletingLoop = true;
+                                            
                                             parenStack.pop();
                                             *parenFinder = ' ';
                                             parenFinder 
                                                 = strpbrk(parenFinder + 1, ")");
-                                        }
-                                        
+                                        }   
                                         commandQueue.pop();
                                         connectorQueue.pop();
                                     }
-                                    connectorQueue.pop();
+                                    if(!commandQueue.empty() 
+                                    && strpbrk(commandQueue.front(), "(") 
+                                    != NULL)
+                                    {
+                                        goodToOpenParen = true;
+                                    }
+                                    else
+                                    {
+                                        connectorQueue.pop();
+                                    }
                                     
                                     //Special case to check for semi colon 
                                     //followed by # with no command in between
@@ -861,6 +989,8 @@ void rshell()
                                 delete[] args;
                             }
                         }
+                        
+                        firstRun = false;
                     }
                 }
             }
