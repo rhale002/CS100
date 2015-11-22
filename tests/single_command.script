@@ -1,0 +1,82 @@
+Script started on Fri 20 Nov 2015 08:28:02 AM UTC
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ ls
+DELETE	LICENSE  Makefile  README.md  bin  rhale002  rhale002rubric  src  tests  typescript
+$ ls -a
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+$ ls -al
+total 76
+drwxr-xr-x 7 ubuntu ubuntu  4096 Nov 20 08:28 .
+drwxr-xr-x 3 ubuntu ubuntu  4096 Nov 17 20:19 ..
+drwxr-xr-x 8 ubuntu ubuntu  4096 Nov 20 08:25 .git
+drwxr-xr-x 2 ubuntu ubuntu  4096 Nov 20 08:24 DELETE
+-rw-r--r-- 1 ubuntu ubuntu 29425 Nov  5 06:58 LICENSE
+-rw-r--r-- 1 ubuntu ubuntu   311 Nov  6 02:17 Makefile
+-rw-r--r-- 1 ubuntu ubuntu  4002 Nov  6 02:17 README.md
+drwxr-xr-x 2 ubuntu ubuntu  4096 Nov 20 08:20 bin
+-rw-r--r-- 1 ubuntu ubuntu   104 Nov 11 03:08 rhale002
+-rw-r--r-- 1 ubuntu ubuntu  1788 Nov 20 01:45 rhale002rubric
+drwxr-xr-x 2 ubuntu ubuntu  4096 Nov 16 18:14 src
+drwxr-xr-x 2 ubuntu ubuntu  4096 Nov 20 08:26 tests
+-rw-r--r-- 1 ubuntu ubuntu     0 Nov 20 08:28 typescript
+$ ls -j
+ls: invalid option -- 'j'
+Try 'ls --help' for more information.
+$ echo hello
+hello
+$ echo hello world
+hello world
+$ echo hello world! This
+hello world! This
+$ echo hello world! This program
+hello world! This program
+$ echo hello world! This program works!
+hello world! This program works!
+$ date
+Fri Nov 20 08:28:46 UTC 2015
+$ cal
+   November 2015
+Su Mo Tu We Th Fr Sa
+ 1  2  3  4  5	6  7
+ 8  9 10 11 12 13 14
+15 16 17 18 19 20 21
+22 23 24 25 26 27 28
+29 30
+
+$ mkdirrDeleteMe
+$ echo DeleteMe Directory created
+DeleteMe Directory created
+$ rmdir DeleteMe
+$ echo DeleteMe Directory removed
+DeleteMe Directory removed
+$ echo hello &&
+ERROR: Command string ends in && and has no following command
+$ ls -a ||
+ERROR: Command string ends in || and has no following command
+$ ls -a ;
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+$ sdanov3ewojn
+No such file or directory
+$ ls |
+ERROR: Invalid connector: |
+$ ls &
+ERROR: Invalid connector: &
+$ ls ;
+DELETE	LICENSE  Makefile  README.md  bin  rhale002  rhale002rubric  src  tests  typescript
+$ && ls
+ERROR: syntax error near unexpected token '&&'
+$ || ls
+ERROR: syntax error near unexpected token '||'
+$ ; ls
+ERROR: syntax error near unexpected token ';'
+$
+$
+$
+$				      ls -a
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+$ exit
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ exit
+exit
+
+Script done on Fri 20 Nov 2015 08:30:29 AM UTC

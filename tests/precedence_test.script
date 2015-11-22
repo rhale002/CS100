@@ -1,0 +1,152 @@
+Script started on Sun 22 Nov 2015 07:31:07 PM UTC
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ (
+ERROR: Number of '(' does not equal number of ')'
+$ )
+ERROR: Number of '(' does not equal number of ')'
+$ ()
+syntax error near unexpected token ')'
+$ (    )
+syntax error near unexpected token ')'
+$      (    )
+syntax error near unexpected token ')'
+$ (ls)
+DELETE	LICENSE  Makefile  README.md  TEST IDEAS ( )  bin  rhale002  src  tests  typescript
+$ (echo hello)
+hello
+$ (ls) && echo a
+DELETE	LICENSE  Makefile  README.md  TEST IDEAS ( )  bin  rhale002  src  tests  typescript
+a
+$ (ls) || echo a
+DELETE	LICENSE  Makefile  README.md  TEST IDEAS ( )  bin  rhale002  src  tests  typescript
+$ echo a && (ls)
+a
+DELETE	LICENSE  Makefile  README.md  TEST IDEAS ( )  bin  rhale002  src  tests  typescript
+$ echo a || (ls)
+a
+$ (ls) && (echo a)
+DELETE	LICENSE  Makefile  README.md  TEST IDEAS ( )  bin  rhale002  src  tests  typescript
+a
+$ (ls) || (echo a)
+DELETE	LICENSE  Makefile  README.md  TEST IDEAS ( )  bin  rhale002  src  tests  typescript
+$ (echo a && echo b) && echo c
+a
+b
+c
+$ (echo a && echo b) || echo c
+a
+b
+$ echo a || (echo a && echo b)
+a
+$ (echo a && echo b) && (echo c && echo d)
+a
+b
+c
+d
+$ (echo a && echo b) || (echo c && echo d)
+a
+b
+$ ((echo a && echo b) || (echo c && echo d)) && echo hello
+a
+b
+hello
+$ ((echo a && echo b) || (echo c && echo d)) || echo hello
+a
+b
+$ ((echo a && echo b) || (echo c && echo d)) || (echo hello && echo world)
+a
+b
+$ (echo a && echo b) || ((echo c && echo d) || (echo hello && echo world))
+a
+b
+$ (echo a && echo b) || ((echo c && echo d) && (echo hello && echo world))
+a
+b
+$ echo a || (echo b && echo c) && echo d || (echo e && (echo f || echo g))
+a
+d
+$ echo a && (echo b || echo c && (echo d && echo f)) && echo e || echo g
+a
+b
+d
+f
+e
+$ echo a || ((echo b && echo c) && echo d) || (echo e && echo f) && (echo g || echo h)
+a
+g
+$ echo a && ((echo b && echo c) || echo d) && (echo e || echo f) || (echo g && echo h)
+a
+b
+c
+e
+$ (((echo b && echo c) || echo d) && (echo e || echo f)) && (((echo b && echo c) || echo d) && (echo e || echo f))
+b
+c
+e
+b
+c
+e
+$ (((echo b && echo c) || echo d) && (echo e || echo f)) && (((echo b || echo c) && echo d) && (echo e && echo f))
+b
+c
+e
+b
+d
+e
+f
+$ (((echo b && echo c) || echo d) && (echo e || echo f)) || (((echo b || echo c) && echo d) && (echo e && echo f))
+b
+c
+e
+$ ((echo b && echo c) && (echo d || echo e && (echo f || echo g)) && echo h || (echo i || echo j)) && echo k
+b
+c
+d
+f
+h
+k
+$ (((echo b && echo c) || echo d) && (echo e || echo f)) && (((echo b || echo c) && echo d) || (echo e && echo f))
+b
+c
+e
+b
+d
+$ ((echo a && echo b) && (echo c && echo d)) || (echo hello || echo world)
+a
+b
+c
+d
+$ (echo a && echo b) && ((echo c && echo d) || (echo hello || echo world))
+a
+b
+c
+d
+$ ((echo a || echo b) && echo c || (echo d && echo e || echo f) && (echo h) || echo i && (echo j && echo k && echo l)) || echo p
+a
+c
+h
+j
+k
+l
+$ ((((echo a || (echo b && echo c)) || ( echo d || echo e) && echo f) && echo g) || ((echo h && echo i) && (echo j || echo k))) || echo l && echo m
+a
+f
+g
+l
+m
+$ ((((echo a || (echo b && echo c)) || ( echo d || echo e) && echo f) && echo g) || ((echo h && echo i) && (echo j || echo k))) || echo l && echo m
+a
+f
+g
+l
+m
+$ echo hello && (echo world || echo seal) || ((((echo a || (echo b && echo c)) || ( echo d || echo e) && echo f) && echo g) || ((echo h && echo i) && (echo j || echo k))) || echo l && echo m
+hello
+world
+m
+$ exit
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ exit
+exit
+
+Script done on Sun 22 Nov 2015 07:37:15 PM UTC
