@@ -1,0 +1,213 @@
+Script started on Fri 20 Nov 2015 08:22:59 AM UTC
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ ls -a; echo hello&& mkdir DELETE|| echo world; git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+world
+On branch test
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	tests/commented_command.script
+	tests/exit.script
+	typescript
+
+nothing added to commit but untracked files present (use "git add" to track)
+$ ls -a ;echo hello &&mkdir DELETE ||echo world ;git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+world
+On branch test
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	tests/commented_command.script
+	tests/exit.script
+	typescript
+
+nothing added to commit but untracked files present (use "git add" to track)
+$ ls -a    ;   echo hello    &&    mkdir DELETE   ||   echo world  ; git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+world
+On branch test
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	tests/commented_command.script
+	tests/exit.script
+	typescript
+
+nothing added to commit but untracked files present (use "git add" to track)
+$ ls -a; ls -a ; ls -a; ls -a; ls -a
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+$ ls -a && echo hello&& mkdir DELETE&& echo world&& git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+$ ls -a || echo hello|| mkdir DELETE|| echo world|| git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+$ ls -a || echo hello|| mkdir DELETE&& echo world|| git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+world
+$ ls -a && echo hello|| mkdir DELETE|| echo world|| git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+$ mkdir DELETE||mkdir DELETE||mkdir DELETE||mkdir DELETE|| ls
+mkdir: cannot create directory ‘DELETE’: File exists
+mkdir: cannot create directory ‘DELETE’: File exists
+mkdir: cannot create directory ‘DELETE’: File exists
+mkdir: cannot create directory ‘DELETE’: File exists
+DELETE	LICENSE  Makefile  README.md  bin  rhale002  rhale002rubric  src  tests  typescript
+$ mkdir DELETE&&mkdir DELETE&&mkdir DELETE&&mkdir DELETE&& ls
+mkdir: cannot create directory ‘DELETE’: File exists
+$ rmdir DELETE&&mkdir DELETE||rmdir DELETE&&mkdir DELETE&& ls
+mkdir: cannot create directory ‘DELETE’: File exists
+$ ls -a; echo hello& mkdir DELETE| echo world; git status
+ERROR: Invalid connector: &
+$ ls -a; echo hello& mkdir DELETE|| echo world; git status
+ERROR: Invalid connector: &
+$ ls -a; echo hello&& mkdir DELETE| echo world; git status
+ERROR: Invalid connector: |
+$ ls -a; echo hello&& mkdir DELETE|| echo world; git status &&'
+ERROR: Command string ends in && and has no following command
+$ ls -a; echo hello&& mkdir DELETE|| echo world; git status ||
+ERROR: Command string ends in || and has no following command
+$ ls -a; echo hello&& mkdir DELETE|| echo world; git status ;
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+world
+On branch test
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	tests/commented_command.script
+	tests/exit.script
+	typescript
+
+nothing added to commit but untracked files present (use "git add" to track)
+$ vohuenqw; echo hello&& mkdir DELETE|| echo world; git status
+No such file or directory
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+world
+On branch test
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	tests/commented_command.script
+	tests/exit.script
+	typescript
+
+nothing added to commit but untracked files present (use "git add" to track)
+$ ls -a; qwevqwnofv&& mkdir DELETE|| echo world; git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+No such file or directory
+world
+On branch test
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	tests/commented_command.script
+	tests/exit.script
+	typescript
+
+nothing added to commit but untracked files present (use "git add" to track)
+$ ls -a; echo hello&& mkdir DELETE|| wffno3qhio; git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+No such file or directory
+On branch test
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	tests/commented_command.script
+	tests/exit.script
+	typescript
+
+nothing added to commit but untracked files present (use "git add" to track)
+$ ls -a; echo hello&& fdaosfwe|| echo world; git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+No such file or directory
+world
+On branch test
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	tests/commented_command.script
+	tests/exit.script
+	typescript
+
+nothing added to commit but untracked files present (use "git add" to track)
+$ ls -a; echo hello&& mkdir DELETE|| echo world; fjwoqnf
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+world
+No such file or directory
+$ && ls -a; echo hello&& mkdir DELETE|| echo world; git status
+ERROR: syntax error near unexpected token '&&'
+$ || ls -a; echo hello&& mkdir DELETE|| echo world; git status
+ERROR: syntax error near unexpected token '||'
+$ ; ls -a; echo hello&& mkdir DELETE|| echo world; git status
+ERROR: syntax error near unexpected token ';'
+$  &&ls -a; echo hello&& mkdir DELETE|| echo world; git status
+ERROR: syntax error near unexpected token '&&'
+$  ||ls -a; echo hello&& mkdir DELETE|| echo world; git status
+ERROR: syntax error near unexpected token '||'
+$  ;ls -a; echo hello&& mkdir DELETE|| echo world; git status
+ERROR: syntax error near unexpected token ';'
+$ ls -a&&&& echo hello&& mkdir DELETE|| echo world; git status
+Syntax error near unexpected token '&&'
+$ ls -a; echo hello |||| mkdir DELETE|| echo world; git status
+Syntax error near unexpected token '||'
+$ ls -a; echo hello&& mkdir DELETE|| echo world ;; git status
+Syntax error near unexpected token ';'
+$ exit
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ exit
+exit
+
+Script done on Fri 20 Nov 2015 08:26:20 AM UTC

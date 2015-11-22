@@ -1,0 +1,65 @@
+Script started on Fri 20 Nov 2015 07:41:36 AM UTC
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ ls -a; echo hello&& exit || echo world; git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ exit; ls -a;echo hello&& mkdir DELETE||echo world;git status
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ ls -a; echo hello&& mkdir DELETE&& exit; git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+On branch test
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   src/main.cpp
+	modified:   src/rshell.cpp
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	tests/commented_command.script
+	typescript
+
+no changes added to commit (use "git add" and/or "git commit -a")
+$ ls -a; echo hello&& mkdir DELETE|| echo world; exit
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+world
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ ls -a; echo hello&& mkdir DELETE|| echo world; exit&&
+ERROR: Command string ends in && and has no following command
+$ ls -a; exit ; ls -a; ls -a; ls -a
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ ls -a && exit&& mkdir DELETE&& echo world&& git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ ls -a || echo hello|| exit|| echo world|| git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+$ ls -a || echo hello|| mkdir DELETE&& echo world|| exit
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+world
+$ mkdir DELETE||exit||mkdir DELETE||exit|| ls
+mkdir: cannot create directory ‘DELETE’: File exists
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ rmdir DELETE&&exit||rmdir DELETE&&exit&& ls
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ exit
+exit
+
+Script done on Fri 20 Nov 2015 07:43:43 AM UTC

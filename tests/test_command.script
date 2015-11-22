@@ -1,0 +1,147 @@
+Script started on Fri 20 Nov 2015 10:56:26 AM UTC
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ test bin && echo hello
+hello
+$ test djsafj && echo hello
+$ test bin || echo hello
+$ test fhkwjs || echo hello
+hello
+$ test bin # echo hello
+$ test fghsdj # echo hello
+$
+$ #test bin && echo hello
+$ test -e bin && echo hello
+hello
+$ test -e djsafj && echo hello
+$ test -e bin || echo hello
+$ test -e fhkwjs || echo hello
+hello
+$ test -e bin # echo hello
+$ test -e fghsdj # echo hello
+$ #test -e bin && echo hello
+$ test -f bin && echo hello
+$ test -f LICENSE && echo hello
+hello
+$ test -f bin || echo hello
+hello
+$ test -f LICENSE || echo hello
+$ test -f bin # echo hello
+$ test -f LICENSE # echo hello
+$ #test -f LICENSE && echo hello
+$ test -d bin && echo hello
+hello
+$ test -d LICENSE && echo hello
+$ test -d bin || echo hello
+$ test -d LICENSE || echo hello
+hello
+$ test -d bin # echo hello
+$ test -d LICENSE # echo hello
+$ #test -d LICENSE && echo hello
+$ test -d -f && echo hello
+$ test -d -f || echo hello
+hello
+$ test -f -f && echo hello
+$ test -f -f || echo hello
+hello
+$ test -e -f && echo hello
+$ test -e -f || echo hello
+hello
+$ test && echo hello
+hello
+$ test || echo hello
+$ test -e && echo hello
+hello
+$ test -e || echo hello
+$ test -d && echo hello
+hello
+$ test -d || echo hello
+$ test -f && echo hello
+hello
+$ test -f || echo hello
+$ test
+$ test dfjl fsdjk && echo hello
+test: dfjl: binary operator expected
+$ test dfjl fsdjk || echo hello
+test: dfjl: binary operator expected
+hello
+$ test dfjl fsdjk dsfajl && echo hello
+test: too many arguments
+$ test dfjl fsdjk dsfajl || echo hello
+test: too many arguments
+hello
+$ test -dfjl fsdjk dsfajl && echo hello
+test: fsdjk: binary operator expected
+$ test -dfjl fsdjk dsfajl || echo hello
+test: fsdjk: binary operator expected
+hello
+$ test -dfjl fsdjk dsfajl dsafj && echo hello
+test: too many arguments
+$ test -dfjl fsdjk dsfajl sdaff || echo hello
+test: too many arguments
+hello
+$ test # && echo hello
+$ test #&& echo hello
+$ test -fnsjofh bin && echo hello
+test: -fnsjofh: unary operator expected
+$ test -fnsjofh bin || echo hello
+test: -fnsjofh: unary operator expected
+hello
+$ [ bin ] && echo hello
+hello
+$ [ bin ] || echo hello
+$ [ -e bin ] && echo hello
+hello
+$ [ -e bin ] || echo hello
+$ [ -f bin ] && echo hello
+$ [ -f bin ] || echo hello
+hello
+$ [ -f LICENSE ] && echo hello
+hello
+$ [ -f LICENSE ] || echo hello
+$ [ -d bin ] && echo hello
+hello
+$ [ -d bin ] || echo hello
+$ [ -d LICENSE ] && echo hello
+$ [ -d LICENSE ] || echo hello
+hello
+$     [ bin ]	 &&	 echo	  hello
+hello
+$      [ bin ]	  ||	  echo	   hello
+$     [   bin	]    &&      echo     hello
+hello
+$      [   bin	 ]    ||      echo     hello
+$ [ bin || echo hello
+[: missing ']'
+$ [ bin # || echo hello
+[: missing ']'
+$ [ bin# ] || echo hello
+[: missing ']'
+$ [ bin#  ] || echo hello
+[: missing ']'
+$ [ bin   #   ] || echo hello
+[: missing ']'
+$ [ # bin] || echo hello
+[: missing ']'
+$ [ #bin ] || echo hello
+[: missing ']'
+$ #[ bin ] || echo hello
+$ []
+[]: command not found
+$ [bin ]
+[bin: command not found
+$ [bin]
+[bin]: command not found
+$ echo [bin]
+[bin]
+$ echo [ bin ]
+[ bin ]
+$ [ bin]
+[: missing ']'
+$ echo [[[ bin
+[[[ bin
+$ exit
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ exit
+exit
+
+Script done on Fri 20 Nov 2015 11:03:44 AM UTC

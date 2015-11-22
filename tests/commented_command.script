@@ -1,0 +1,149 @@
+Script started on Fri 20 Nov 2015 07:38:23 AM UTC
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ bin/rshell
+$ ls -a; echo hello&& mkdir DELETE # echo world; git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+$ ls -a; echo hello&& mkdir DELETE|| echo world #git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+world
+$ ls -a; echo hello&& mkdir DELETE|| echo world; git status#
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+world
+On branch test
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   src/main.cpp
+	modified:   src/rshell.cpp
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	typescript
+
+no changes added to commit (use "git add" and/or "git commit -a")
+$ ls -a; echo hello&& mkdir DELETE # echo world; git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+$ #ls -a; echo hello&& mkdir DELETE|| echo world; git status
+$    #ls -a; echo hello&& mkdir DELETE|| echo world; git status
+$ ls -a; echo hello# mkdir DELETE|| echo world; git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello# mkdir DELETE
+On branch test
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   src/main.cpp
+	modified:   src/rshell.cpp
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	typescript
+
+no changes added to commit (use "git add" and/or "git commit -a")
+$ ls -a# echo hello&& mkdir DELETE|| echo world; git status
+ls: invalid option -- '#'
+Try 'ls --help' for more information.
+world
+On branch test
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   src/main.cpp
+	modified:   src/rshell.cpp
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	typescript
+
+no changes added to commit (use "git add" and/or "git commit -a")
+$ ls -a# && echo hello&& mkdir DELETE|| echo world; git status
+ls: invalid option -- '#'
+Try 'ls --help' for more information.
+world
+On branch test
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   src/main.cpp
+	modified:   src/rshell.cpp
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	typescript
+
+no changes added to commit (use "git add" and/or "git commit -a")
+$ ls -a# || echo hello&& mkdir DELETE|| echo world; git status
+ls: invalid option -- '#'
+Try 'ls --help' for more information.
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+world
+On branch test
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   src/main.cpp
+	modified:   src/rshell.cpp
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	bin/
+	rhale002
+	rhale002rubric
+	tests/base_test.script
+	typescript
+
+no changes added to commit (use "git add" and/or "git commit -a")
+$ &&ls -a; echo hello# mkdir DELETE|| echo world; git status
+ERROR: syntax error near unexpected token '&&'
+$ ||ls -a; echo hello&& mkdir DELETE# echo world; git status
+ERROR: syntax error near unexpected token '||'
+$ ;ls -a; echo hello&& mkdir DELETE|| # echo world; git status
+ERROR: syntax error near unexpected token ';'
+$ ls -a; echo hello&& mkdir DELETE|| # echo world; git status
+ERROR: Command string ends in || and has no following command
+$ ls -a; echo hello&& # mkdir DELETE|| echo world; git status
+ERROR: Command string ends in && and has no following command
+$ ls -a; echo hello&& mkdir DELETE; # echo world; git status
+.  ..  .git  DELETE  LICENSE  Makefile	README.md  bin	rhale002  rhale002rubric  src  tests  typescript
+hello
+mkdir: cannot create directory ‘DELETE’: File exists
+$ exit
+
+rhale002@cs_private:~/workspace/cs100/rshell (test) $ exit
+exit
+
+Script done on Fri 20 Nov 2015 07:40:27 AM UTC
