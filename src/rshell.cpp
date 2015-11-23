@@ -1,3 +1,8 @@
+#include "timer.h"
+#include <fcntl.h>
+#include <fstream>
+#include <istream>
+#include <ostream>
 #include <iostream>
 #include <cstring>
 #include <cstdio>
@@ -422,6 +427,157 @@ void fillArgsArray(char** args, queue<char*> sepComQueue)
 //Runs the command and returns true if success else return false
 bool runCommand(char** args)
 {
+    //LAB8
+    if(strcmp(*args, "cp") == 0)
+    {
+        //Too few arguments given
+        if(args[1] == NULL || args[2] == NULL)
+        {
+            cout << "ERROR: Too few arguments given" << endl;
+            return false;
+        }
+        //If too many arguments given
+        if(args[4] != NULL)
+        {
+            cout << "ERROR: Too many arguments given" << endl;
+            return false;
+        }
+        
+        struct stat buf;
+        
+        //Test if src exists
+        stat(args[1], &buf);
+        if (!(S_ISREG(buf.st_mode)))
+        {
+            cout << "ERROR: Source file is not a regular file" << endl;
+            return false;
+        }
+        
+        //Test if dest exists
+        if (stat(args[2], &buf) == 0)
+        {
+            cout << "ERROR: Destination file already exists" << endl;
+            return false;
+        }
+        
+        //If no third argument
+        if(args[3] == NULL)
+        {
+            //FIXME
+        }
+        //If third argument is given
+        else if(args[3] != NULL)
+        {
+            //Use the std::istream::get and std::ostream::put C++ functions to
+            //copy the input file to the output file one character at a time.
+            cout << "Method 1 " << endl;
+            Timer t1;
+            double eTime1;
+            t1.start();
+            
+            ifstream ifs(args[1]); 
+            ofstream ofs(args[2]);
+            
+            if(!(ifs.is_open()))
+            {
+                cout << "ERROR: Source file did not open properly" << endl;
+                return false;
+            }
+            if(!(ofs.is_open()))
+            {
+                cout << "ERROR: Destination file did not open properly" << endl;
+                return false;
+            }
+            
+            char c;
+            string s;
+            while (ifs.get(c))
+                s.push_back(c);
+                
+            char* cs = new char[s.size() + 1];
+            strcpy(cs, s.c_str());
+            
+            ofs.write(cs, s.size());
+            
+            delete[] cs;
+            
+            ifs.close();
+            ofs.close();
+            
+            t1.elapsedUserTime(eTime1);
+            cout << "Time: " <<  eTime1 << endl;
+            
+            //Use the Unix system calls read() and write() to copy the input 
+            //file to the output file one character at a time.
+            cout << "Method 2 " << endl;
+            Timer t2;
+            double eTime2;
+            t2.start();
+            
+            int fdsrc = open(args[1], O_RDONLY);
+            int fddst = open(args[2], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR
+                | S_IRGRP);
+            
+            if(fdsrc < 0)
+            {
+                cout << "ERROR: Source file did not open properly" << endl;
+                return false;
+            }
+            if(fddst < 0)
+            {
+                cout << "ERROR: Destination file did not open properly" << endl;
+                return false;
+            }
+            
+            while (read(fdsrc, (void*)&c, 1))
+                write(fddst, (void*)&c, 1);
+            
+            close(fdsrc);
+            close(fddst);
+            
+            t2.elapsedUserTime(eTime2);
+            cout << "Time: " <<  eTime2 << endl;
+            
+            
+            //Use the Unix system calls read() and write() to copy the input
+            //file to the output file one buffer at a time. The buffer should
+            //be of size BUFSIZ, which is declared in the stdio.h include file
+            cout << "Method 3 " << endl;
+            Timer t3;
+            double eTime3;
+            t3.start();
+            
+            fdsrc = open(args[1], O_RDONLY);
+            fddst = open(args[2], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR 
+                | S_IRGRP);
+            
+            if(fdsrc < 0)
+            {
+                cout << "ERROR: Source file did not open properly" << endl;
+                return false;
+            }
+            if(fddst < 0)
+            {
+                cout << "ERROR: Destination file did not open properly" << endl;
+                return false;
+            }
+            
+            char cb[BUFSIZ];
+            
+            int numRead = read(fdsrc, (void*)&cb, BUFSIZ);
+            write(fddst, (void*)&cb, numRead);
+            
+            close(fdsrc);
+            close(fddst);
+            
+            t3.elapsedUserTime(eTime3);
+            cout << "Time: " <<  eTime3 << endl;
+            
+            return true;
+        }
+    }
+    //LAB8
+    
     //Create bool to store whether command execution was a success
     bool ynSuccess = true;
     
