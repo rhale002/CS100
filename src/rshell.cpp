@@ -436,12 +436,12 @@ bool runCommand(char** args)
             cout << "ERROR: Too few arguments given" << endl;
             return false;
         }
-        //If too many arguments given
-        if(args[4] != NULL)
-        {
-            cout << "ERROR: Too many arguments given" << endl;
-            return false;
-        }
+        // //If too many arguments given
+        // if(args[4] != NULL)
+        // {
+        //     cout << "ERROR: Too many arguments given" << endl;
+        //     return false;
+        // }
         
         struct stat buf;
         
