@@ -463,7 +463,28 @@ bool runCommand(char** args)
         //If no third argument
         if(args[3] == NULL)
         {
-            //FIXME
+            int fdsrc = open(args[1], O_RDONLY);
+            int fddst = open(args[2], O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR 
+                | S_IRGRP);
+            
+            if(fdsrc < 0)
+            {
+                cout << "ERROR: Source file did not open properly" << endl;
+                return false;
+            }
+            if(fddst < 0)
+            {
+                cout << "ERROR: Destination file did not open properly" << endl;
+                return false;
+            }
+            
+            char cb[BUFSIZ];
+            
+            int numRead = read(fdsrc, (void*)&cb, BUFSIZ);
+            write(fddst, (void*)&cb, numRead);
+            
+            close(fdsrc);
+            close(fddst);
         }
         //If third argument is given
         else if(args[3] != NULL)
